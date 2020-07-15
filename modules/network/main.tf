@@ -32,12 +32,12 @@ resource "aws_subnet" "public" {
   count = length(var.availability_zones)
 
   vpc_id                  = aws_vpc.this.id
-  cidr_block              = join(".", [var.subnet_cidr_prefix, count.index, var.subnet_cidr_suffix])
+  cidr_block              = cidrsubnet(var.vpc_cidr, var.cidrsubnet_newbits, count.index)
   availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "gitlab-public-${var.subnet_cidr_prefix}.${count.index}.${var.subnet_cidr_suffix}"
+    Name = "gitlab-public-${cidrsubnet(var.vpc_cidr, var.cidrsubnet_newbits, count.index)}"
   }
 }
 
@@ -46,10 +46,10 @@ resource "aws_subnet" "private" {
   count = length(var.availability_zones)
 
   vpc_id            = aws_vpc.this.id
-  cidr_block        = join(".", [var.subnet_cidr_prefix, "${length(var.availability_zones) + count.index}", var.subnet_cidr_suffix])
+  cidr_block        = cidrsubnet(var.vpc_cidr, var.cidrsubnet_newbits, length(var.availability_zones) + count.index)
   availability_zone = var.availability_zones[count.index]
 
   tags = {
-    Name = "gitlab-private-${var.subnet_cidr_prefix}.${length(var.availability_zones) + count.index}.${var.subnet_cidr_suffix}"
+    Name = "gitlab-private-${cidrsubnet(var.vpc_cidr, var.cidrsubnet_newbits, length(var.availability_zones) + count.index)}"
   }
 }

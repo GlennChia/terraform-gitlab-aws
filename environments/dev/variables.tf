@@ -10,14 +10,8 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "subnet_cidr_prefix" {
-  description = "First 16 bits of cidr"
-  type        = string
-  default     = "10.0"
-}
-
-variable "subnet_cidr_suffix" {
-  description = "Last 16 bits of cidr and length of the mask"
-  type        = string
-  default     = "0/24"
+variable "cidrsubnet_newbits" {
+  description = "Second argument to cidrsubnet function"
+  type        = number
+  default     = 8
 }
