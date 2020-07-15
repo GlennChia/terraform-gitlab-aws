@@ -11,12 +11,17 @@ terraform {
   }
 }
 
+data "aws_availability_zones" "available" {}
+
 provider "aws" {
   profile = "default"
   region  = var.region
 }
 
 module "network" {
-  source   = "../../modules/network"
-  vpc_cidr = var.vpc_cidr
+  source             = "../../modules/network"
+  vpc_cidr           = var.vpc_cidr
+  availability_zones = data.aws_availability_zones.available.names
+  subnet_cidr_prefix = var.subnet_cidr_prefix
+  subnet_cidr_suffix = var.subnet_cidr_suffix
 }
