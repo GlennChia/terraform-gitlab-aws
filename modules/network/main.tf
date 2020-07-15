@@ -26,3 +26,30 @@ resource "aws_internet_gateway" "this" {
     Name = "gitlab-gateway"
   }
 }
+
+# Creates a public subnet in each AZ
+resource "aws_subnet" "public" {
+  count = length(var.availability_zones)
+
+  vpc_id                  = aws_vpc.this.id
+  cidr_block              = join(".", [var.subnet_cidr_prefix, count.index, var.subnet_cidr_suffix])
+  availability_zone       = var.availability_zones[count.index]
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "gitlab-public-${var.subnet_cidr_prefix}.${count.index}.${var.subnet_cidr_suffix}"
+  }
+}
+
+# Creates a private subnet in each AZ
+resource "aws_subnet" "private" {
+  count = length(var.availability_zones)
+
+  vpc_id            = aws_vpc.this.id
+  cidr_block        = join(".", [var.subnet_cidr_prefix, "${length(var.availability_zones) + count.index}", var.subnet_cidr_suffix])
+  availability_zone = var.availability_zones[count.index]
+
+  tags = {
+    Name = "gitlab-private-${var.subnet_cidr_prefix}.${length(var.availability_zones) + count.index}.${var.subnet_cidr_suffix}"
+  }
+}
