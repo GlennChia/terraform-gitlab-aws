@@ -53,3 +53,25 @@ resource "aws_subnet" "private" {
     Name = "gitlab-private-${cidrsubnet(var.vpc_cidr, var.cidrsubnet_newbits, length(var.availability_zones) + count.index)}"
   }
 }
+
+resource "aws_eip" "ngw" {
+  count = length(var.availability_zones)
+
+  vpc = true
+
+  tags = {
+    Name = "gitlab-eip-ngw-${1 + count.index}"
+  }
+}
+
+resource "aws_nat_gateway" "this" {
+  count = length(var.availability_zones)
+
+  allocation_id = aws_eip.ngw[count.index].id
+  subnet_id     = aws_subnet.public[count.index].id
+  depends_on    = [aws_internet_gateway.this]
+  
+  tags = {
+    Name = "gitlab-nat-gateway-${1 + count.index}"
+  }
+}
