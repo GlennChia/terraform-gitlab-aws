@@ -70,8 +70,50 @@ resource "aws_nat_gateway" "this" {
   allocation_id = aws_eip.ngw[count.index].id
   subnet_id     = aws_subnet.public[count.index].id
   depends_on    = [aws_internet_gateway.this]
-  
+
   tags = {
     Name = "gitlab-nat-gateway-${1 + count.index}"
   }
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.this.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.this.id
+  }
+
+  tags = {
+    Name = "gitlab-public"
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  count = length(var.availability_zones)
+
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table" "private" {
+  count = length(var.availability_zones)
+
+  vpc_id = aws_vpc.this.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.this[count.index].id
+  }
+
+  tags = {
+    Name = "gitlab-private-${1 + count.index}"
+  }
+}
+
+resource "aws_route_table_association" "private" {
+  count = length(var.availability_zones)
+
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_route_table.private[count.index].id
 }
