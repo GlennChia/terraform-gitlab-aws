@@ -54,7 +54,7 @@ resource "aws_subnet" "private" {
   }
 }
 
-resource "aws_eip" "ngw" {
+resource "aws_eip" "this" {
   count = length(var.availability_zones)
 
   vpc = true
@@ -67,7 +67,7 @@ resource "aws_eip" "ngw" {
 resource "aws_nat_gateway" "this" {
   count = length(var.availability_zones)
 
-  allocation_id = aws_eip.ngw[count.index].id
+  allocation_id = aws_eip.this[count.index].id
   subnet_id     = aws_subnet.public[count.index].id
   depends_on    = [aws_internet_gateway.this]
 
@@ -103,7 +103,7 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.this[count.index].id
+    nat_gateway_id = aws_nat_gateway.this[count.index].id
   }
 
   tags = {
