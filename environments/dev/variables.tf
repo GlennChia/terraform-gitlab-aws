@@ -15,3 +15,19 @@ variable "cidrsubnet_newbits" {
   type        = number
   default     = 8
 }
+
+variable "bastion_instance_type" {
+  description = "The Bastion instance type"
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "bastion_key_name" {
+  description = "The Bastion key name of a key that has already been created"
+  type        = string
+}
+
+variable "whitelist_ssh_ip" {
+  description = "The list of IPs that can SSH into the Bastion"
+  type        = list(string)
+}

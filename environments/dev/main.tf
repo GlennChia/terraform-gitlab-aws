@@ -20,7 +20,19 @@ provider "aws" {
 
 module "network" {
   source             = "../../modules/network"
+  
   vpc_cidr           = var.vpc_cidr
   availability_zones = data.aws_availability_zones.available.names
   cidrsubnet_newbits = var.cidrsubnet_newbits
+}
+
+module "bastion" {
+  source = "../../modules/bastion"
+
+  region           = var.region
+  instance_type    = var.bastion_instance_type
+  bastion_key_name = var.bastion_key_name
+  vpc_id           = module.network.vpc_id
+  subnet_ids       = module.network.this_subnet_public_ids
+  whitelist_ssh_ip = var.whitelist_ssh_ip
 }
