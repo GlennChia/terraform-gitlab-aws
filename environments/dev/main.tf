@@ -65,3 +65,12 @@ module "database" {
   deletion_protection        = var.deletion_protection
   skip_final_snapshot        = var.skip_final_snapshot
 }
+
+module "redis" {
+  source = "../../modules/redis"
+
+  vpc_id                     = module.network.vpc_id
+  availability_zones         = data.aws_availability_zones.available.names
+  subnet_ids                 = module.network.this_subnet_public_ids
+  ingress_security_group_ids = [module.loadbalancer.security_group_id]
+}
