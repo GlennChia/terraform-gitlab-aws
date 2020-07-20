@@ -4,3 +4,6 @@ cidrsubnet_newbits    = 8
 bastion_instance_type = "t2.micro"
 bastion_key_name      = "someKey"
 whitelist_ssh_ip      = ["0.0.0.0/0"]
+whitelist_ip          = ["0.0.0.0/0"]
+access_log_bucket_acl = "private"
+force_destroy         = true

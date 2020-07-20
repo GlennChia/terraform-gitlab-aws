@@ -19,8 +19,8 @@ provider "aws" {
 }
 
 module "network" {
-  source             = "../../modules/network"
-  
+  source = "../../modules/network"
+
   vpc_cidr           = var.vpc_cidr
   availability_zones = data.aws_availability_zones.available.names
   cidrsubnet_newbits = var.cidrsubnet_newbits
@@ -35,4 +35,21 @@ module "bastion" {
   vpc_id           = module.network.vpc_id
   subnet_ids       = module.network.this_subnet_public_ids
   whitelist_ssh_ip = var.whitelist_ssh_ip
+}
+
+module "storage" {
+  source = "../../modules/storage"
+
+  acl           = var.access_log_bucket_acl
+  force_destroy = var.force_destroy
+}
+
+module "loadbalancer" {
+  source = "../../modules/loadbalancer"
+
+  vpc_id                    = module.network.vpc_id
+  subnet_ids                = module.network.this_subnet_public_ids
+  elb_log_s3_bucket_id      = module.storage.elb_log_s3_bucket_id
+  whitelist_ip              = var.whitelist_ip
+  bastion_security_group_id = module.bastion.security_group_id
 }

@@ -31,3 +31,20 @@ variable "whitelist_ssh_ip" {
   description = "The list of IPs that can SSH into the Bastion"
   type        = list(string)
 }
+
+variable "whitelist_ip" {
+  description = "The list of IPs that can reach the load balancer via HTTP or HTTPs"
+  type        = list(string)
+}
+
+variable "access_log_bucket_acl" {
+  description = "The canned ACL to apply. Options are `private`, `public-read`, `public-read-write` among others"
+  type        = string
+  default     = "private"
+}
+
+variable "force_destroy" {
+  description = "Indicates that all objects should be deleted from the bucket so that it can be destroyed without error"
+  type        = bool
+  default     = true
+}
