@@ -48,3 +48,25 @@ variable "force_destroy" {
   type        = bool
   default     = true
 }
+
+variable "rds_username" {
+  description = "Username for the master DB user"
+  type        = string
+}
+
+variable "rds_password" {
+  description = "Password for the master DB user"
+  type        = string
+}
+
+variable "deletion_protection" {
+  description = "Database cannot be deleted if set to true"
+  type        = bool
+  default     = false
+}
+
+variable "skip_final_snapshot" {
+  description = "Determines whether a final DB snapshot is created before the DB instance is deleted"
+  type        = bool
+  default     = true
+}

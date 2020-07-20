@@ -53,3 +53,15 @@ module "loadbalancer" {
   whitelist_ip              = var.whitelist_ip
   bastion_security_group_id = module.bastion.security_group_id
 }
+
+module "database" {
+  source = "../../modules/database"
+
+  vpc_id                     = module.network.vpc_id
+  subnet_ids                 = module.network.this_subnet_public_ids
+  ingress_security_group_ids = [module.loadbalancer.security_group_id]
+  username                   = var.rds_username
+  password                   = var.rds_password
+  deletion_protection        = var.deletion_protection
+  skip_final_snapshot        = var.skip_final_snapshot
+}
