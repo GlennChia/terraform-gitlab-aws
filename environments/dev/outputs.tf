@@ -3,7 +3,7 @@ output "bastion_ip" {
   value       = module.bastion.public_ip
 }
 
-output "elb_endpoint" {
+output "elb_dns_name" {
   description = "The endpoint associated with the elb"
-  value       = module.loadbalancer.endpoint
+  value       = module.loadbalancer.dns_name
 }

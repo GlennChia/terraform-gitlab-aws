@@ -3,7 +3,7 @@ output "security_group_id" {
   value       = aws_security_group.this.id
 }
 
-output "endpoint" {
+output "dns_name" {
   description = "The endpoint of the load balancer"
   value       = aws_elb.classic.dns_name
 }
