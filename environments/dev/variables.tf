@@ -70,3 +70,56 @@ variable "skip_final_snapshot" {
   type        = bool
   default     = true
 }
+
+variable "gitlab_instance_type" {
+  description = "The Gitlab instance type"
+  type        = string
+  default     = "c5.xlarge"
+}
+
+variable "gitlab_key_name" {
+  description = "The GitLab key name of a key that has already been created"
+  type        = string
+}
+
+variable "gitlab_artifacts_bucket_name" {
+  description = "The artifact bucket's name"
+  type        = string
+  default     = "gl-aws-artifacts"
+}
+
+variable "gitlab_external_diffs_bucket_name" {
+  description = "The external diffs bucket's name"
+  type        = string
+  default     = "gl-aws-external-diffs"
+}
+
+variable "gitlab_lfs_bucket_name" {
+  description = "The large file storage objects bucket's name"
+  type        = string
+  default     = "gl-aws-lfs-objects"
+}
+
+variable "gitlab_uploads_bucket_name" {
+  description = "The user uploads bucket's name"
+  type        = string
+  default     = "gl-aws-uploads"
+}
+
+variable "gitlab_packages_bucket_name" {
+  description = "The packages bucket's name"
+  type        = string
+  default     = "gl-aws-packages"
+}
+
+variable "gitlab_dependency_proxy_bucket_name" {
+  description = "The dependency proxy bucket's name"
+  type        = string
+  default     = "gl-aws-dependency-proxy"
+}
+
+variable "gitlab_terraform_state_bucket_name" {
+  description = "The terraform state bucket's name"
+  type        = string
+  default     = "gl-aws-terraform-state"
+}

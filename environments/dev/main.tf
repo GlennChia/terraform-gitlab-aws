@@ -42,6 +42,12 @@ module "storage" {
 
   acl           = var.access_log_bucket_acl
   force_destroy = var.force_destroy
+  gitlab_buckets = [
+    var.gitlab_artifacts_bucket_name, var.gitlab_external_diffs_bucket_name,
+    var.gitlab_lfs_bucket_name, var.gitlab_uploads_bucket_name,
+    var.gitlab_packages_bucket_name, var.gitlab_dependency_proxy_bucket_name,
+    var.gitlab_terraform_state_bucket_name
+  ]
 }
 
 module "loadbalancer" {
@@ -73,4 +79,21 @@ module "redis" {
   availability_zones         = data.aws_availability_zones.available.names
   subnet_ids                 = module.network.this_subnet_public_ids
   ingress_security_group_ids = [module.loadbalancer.security_group_id]
+}
+
+module "gitlab_image" {
+  source = "../../modules/images/gitlab"
+
+  rds_address                  = module.database.rds_address
+  redis_address                = module.redis.primary_address
+  rds_password                 = var.rds_password
+  dns_name                     = module.loadbalancer.dns_name
+  region                       = var.region
+  gitlab_artifacts_bucket_name = var.gitlab_artifacts_bucket_name
+  gitlab_lfs_bucket_name       = var.gitlab_lfs_bucket_name
+  gitlab_uploads_bucket_name   = var.gitlab_uploads_bucket_name
+  gitlab_packages_bucket_name  = var.gitlab_packages_bucket_name
+  security_group_ids           = [module.loadbalancer.security_group_id]
+  subnet_id                    = module.network.this_subnet_public_ids[0]
+  gitlab_key_name              = var.gitlab_key_name
 }
