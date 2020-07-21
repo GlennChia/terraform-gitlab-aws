@@ -4,6 +4,7 @@
 * Contains the buckets for the following:
 *
 * * Access logs for elb
+* * All GitLab related buckets
 *
 * For Prod, consider setting `force_destroy` to `false`
 */
@@ -38,5 +39,17 @@ POLICY
 
   tags = {
     Name = "gl-entry"
+  }
+}
+
+resource "aws_s3_bucket" "this" {
+  count = length(var.gitlab_buckets)
+
+  bucket        = var.gitlab_buckets[count.index]
+  acl           = var.acl
+  force_destroy = var.force_destroy
+
+  tags = {
+    Name = "${var.gitlab_buckets[count.index]}"
   }
 }

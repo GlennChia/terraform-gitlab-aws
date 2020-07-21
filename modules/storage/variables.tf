@@ -9,3 +9,9 @@ variable "force_destroy" {
   type        = bool
   default     = true
 }
+
+variable "gitlab_buckets" {
+  description = "List of gitlab buckets to create"
+  type        = list(string)
+  default     = ["gl-aws-artifacts", "gl-aws-external-diffs", "gl-aws-lfs-objects", "gl-aws-uploads", "gl-aws-packages", "gl-aws-dependency-proxy", "gl-aws-terraform-state"]
+}
