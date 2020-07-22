@@ -29,7 +29,7 @@ EOF
 
 resource "aws_iam_role_policy_attachment" "ssm" {
   role       = aws_iam_role.ssm.name
-  policy_arn = data.aws_iam_policy.arn
+  policy_arn = data.aws_iam_policy.ssm.arn
 }
 
 resource "aws_iam_instance_profile" "ssm" {
