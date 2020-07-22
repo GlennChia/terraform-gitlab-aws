@@ -131,6 +131,7 @@ data "template_file" "this" {
     redis_address      = var.redis_address,
     rds_password       = var.rds_password,
     dns_name           = var.dns_name,
+    visibility         = var.visibility
     region             = var.region,
     artifacts_bucket   = var.gitlab_artifacts_bucket_name,
     lfs_objects_bucket = var.gitlab_lfs_bucket_name,

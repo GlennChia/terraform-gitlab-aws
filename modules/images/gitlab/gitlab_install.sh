@@ -21,10 +21,14 @@ CREATE EXTENSION pg_trgm;
 \q
 
 # Configure GitLab to connect to PostgreSQL and Redis
-# Comment out the following 2 lines if using a load balancer
-export HOST_NAME=$(curl http://169.254.169.254/latest/meta-data/public-hostname)
-sed -i "s+external_url 'http://ec2.*.amazonaws.com'+external_url 'http://$HOST_NAME'+" gitlab.rb
-# sed -i "s+external_url 'http://ec2.*.amazonaws.com'+external_url 'http://${dns_name}'+" gitlab.rb
+if [[ ${visibility} = "private" ]]
+then
+  sed -i "s+external_url 'http://ec2.*.amazonaws.com'+external_url 'http://${dns_name}'+" gitlab.rb
+elif [[ ${visibility} = "public" ]]
+then
+  export HOST_NAME=$(curl http://169.254.169.254/latest/meta-data/public-hostname)
+  sed -i "s+external_url 'http://ec2.*.amazonaws.com'+external_url 'http://$HOST_NAME'+" gitlab.rb
+fi
 sed -i "s/# postgresql\['enable'\] = true/postgresql\['enable'\] = false/" gitlab.rb
 sed -i "s/# gitlab_rails\['db_adapter'\]/gitlab_rails\['db_adapter'\]/" gitlab.rb
 sed -i "s/# gitlab_rails\['db_encoding'\]/gitlab_rails\['db_encoding'\]/" gitlab.rb

@@ -18,6 +18,12 @@ variable "dns_name" {
   type        = string
 }
 
+variable "visibility" {
+  description = "Determines if the instance is private (behind a loadbalancer) or public (using its own dns)"
+  type        = string
+  default     = "private"
+}
+
 variable "region" {
   description = "The region to deploy the resources in"
   type        = string
