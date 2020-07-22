@@ -14,3 +14,8 @@ variable "cidrsubnet_newbits" {
   type        = number
   default     = 8
 }
+
+variable "region" {
+  description = "The region to deploy the resources in"
+  type        = string
+}
