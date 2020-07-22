@@ -127,19 +127,19 @@ data "template_file" "this" {
   template = "${file("../../modules/images/gitlab/gitlab_install.sh")}"
 
   vars = {
-    rds_address        = var.rds_address,
-    redis_address      = var.redis_address,
-    rds_password       = var.rds_password,
-    dns_name           = var.dns_name,
-    visibility         = var.visibility
-    region             = var.region,
-    artifacts_bucket   = var.gitlab_artifacts_bucket_name,
-    lfs_objects_bucket = var.gitlab_lfs_bucket_name,
-    uploads_bucket     = var.gitlab_uploads_bucket_name,
-    packages_bucket    = var.gitlab_packages_bucket_name,
-    # external_diffs_bucket   = gitlab_external_diffs_bucket_name,
-    # dependency_proxy_bucket = gitlab_dependency_proxy_bucket_name,
-    # terraform_state_bucket  = gitlab_terraform_state_bucket_name
+    rds_address             = var.rds_address,
+    redis_address           = var.redis_address,
+    rds_password            = var.rds_password,
+    dns_name                = var.dns_name,
+    visibility              = var.visibility
+    region                  = var.region,
+    artifacts_bucket        = var.gitlab_artifacts_bucket_name,
+    lfs_objects_bucket      = var.gitlab_lfs_bucket_name,
+    uploads_bucket          = var.gitlab_uploads_bucket_name,
+    packages_bucket         = var.gitlab_packages_bucket_name,
+    external_diffs_bucket   = var.gitlab_external_diffs_bucket_name,
+    dependency_proxy_bucket = var.gitlab_dependency_proxy_bucket_name,
+    terraform_state_bucket  = var.gitlab_terraform_state_bucket_name
   }
 }
 

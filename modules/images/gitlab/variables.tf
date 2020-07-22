@@ -35,6 +35,12 @@ variable "gitlab_artifacts_bucket_name" {
   default     = "gl-aws-artifacts"
 }
 
+variable "gitlab_external_diffs_bucket_name" {
+  description = "The external diffs bucket's name"
+  type        = string
+  default     = "gl-aws-external-diffs"
+}
+
 variable "gitlab_lfs_bucket_name" {
   description = "The large file storage objects bucket's name"
   type        = string
@@ -51,6 +57,18 @@ variable "gitlab_packages_bucket_name" {
   description = "The packages bucket's name"
   type        = string
   default     = "gl-aws-packages"
+}
+
+variable "gitlab_dependency_proxy_bucket_name" {
+  description = "The dependency proxy bucket's name"
+  type        = string
+  default     = "gl-aws-dependency-proxy"
+}
+
+variable "gitlab_terraform_state_bucket_name" {
+  description = "The terraform state bucket's name"
+  type        = string
+  default     = "gl-aws-terraform-state"
 }
 
 variable "instance_type" {

@@ -74,6 +74,28 @@ sed -i "s/# gitlab_rails\['packages_object_store_background_upload'\]/gitlab_rai
 sed -i "s/# gitlab_rails\['packages_object_store_proxy_download'\]/gitlab_rails\['packages_object_store_proxy_download'\]/" gitlab.rb
 perl -i -pe "BEGIN{undef $/;} s/# gitlab_rails\['packages_object_store_connection.*?# }/gitlab_rails['packages_object_store_connection'] = \{\n  'provider' => 'AWS',\n  'region' => '${region}',\n  'use_iam_profile' => true\n\}/smg" gitlab.rb
 
+# configure the external diffs_bucket
+sed -i "s/# gitlab_rails\['external_diffs_enabled'\] = false/gitlab_rails\['external_diffs_enabled'\] = true/" gitlab.rb
+sed -i "s/# gitlab_rails\['external_diffs_object_store_enabled'\] = false/gitlab_rails\['external_diffs_object_store_enabled'\] = true/" gitlab.rb
+sed -i "s/# gitlab_rails\['external_diffs_object_store_remote_directory'\] = .*/gitlab_rails\['external_diffs_object_store_remote_directory'\] = \"${external_diffs_bucket}\"/" gitlab.rb
+perl -i -pe "BEGIN{undef $/;} s/# gitlab_rails\['external_diffs_object_store_connection.*?# }/gitlab_rails['external_diffs_object_store_connection'] = \{\n  'provider' => 'AWS',\n  'region' => '${region}',\n  'use_iam_profile' => true\n\}/smg" gitlab.rb
+
+# configure dependency proxy_bucket
+sed -i "s/# gitlab_rails\['dependency_proxy_enabled'\]/gitlab_rails\['dependency_proxy_enabled'\]/" gitlab.rb
+sed -i "s/# gitlab_rails\['dependency_proxy_storage_path'\]/gitlab_rails\['dependency_proxy_storage_path'\]/" gitlab.rb
+sed -i "s/# gitlab_rails\['dependency_proxy_object_store_enabled'\] = false/gitlab_rails\['dependency_proxy_object_store_enabled'\] = true/" gitlab.rb
+sed -i "s/# gitlab_rails\['dependency_proxy_object_store_remote_directory'\] = .*/gitlab_rails\['dependency_proxy_object_store_remote_directory'\] = \"${dependency_proxy_bucket}\"/" gitlab.rb
+sed -i "s/# gitlab_rails\['dependency_proxy_object_store_direct_upload'\]/gitlab_rails\['dependency_proxy_object_store_direct_upload'\]/" gitlab.rb
+sed -i "s/# gitlab_rails\['dependency_proxy_object_store_background_upload'\]/gitlab_rails\['dependency_proxy_object_store_background_upload'\]/" gitlab.rb
+sed -i "s/# gitlab_rails\['dependency_proxy_object_store_proxy_download'\]/gitlab_rails\['dependency_proxy_object_store_proxy_download'\]/" gitlab.rb
+perl -i -pe "BEGIN{undef $/;} s/# gitlab_rails\['dependency_proxy_object_store_connection.*?# }/gitlab_rails['dependency_proxy_object_store_connection'] = \{\n  'provider' => 'AWS',\n  'region' => '${region}',\n  'use_iam_profile' => true\n\}/smg" gitlab.rb
+
+# terraform_state_bucket
+sed -i "s/# gitlab_rails\['terraform_state_enabled'\]/gitlab_rails\['terraform_state_enabled'\]/" gitlab.rb
+sed -i "s/# gitlab_rails\['terraform_state_object_store_enabled'\] = false/gitlab_rails\['terraform_state_object_store_enabled'\] = true/" gitlab.rb
+sed -i "s/# gitlab_rails\['terraform_state_object_store_remote_directory'\] = .*/gitlab_rails\['terraform_state_object_store_remote_directory'\] = \"${terraform_state_bucket}\"/" gitlab.rb
+perl -i -pe "BEGIN{undef $/;} s/# gitlab_rails\['terraform_state_object_store_connection.*?# }/gitlab_rails['terraform_state_object_store_connection'] = \{\n  'provider' => 'AWS',\n  'region' => '${region}',\n  'use_iam_profile' => true\n\}/smg" gitlab.rb
+
 sudo gitlab-ctl reconfigure
 gitlab-rake gitlab:lfs:migrate
 # Run a check and a service status to make sure everything has been setup correctly
