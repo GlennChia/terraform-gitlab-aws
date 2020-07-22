@@ -79,6 +79,7 @@ resource "aws_security_group" "this" {
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = var.whitelist_ip
+    self = true
   }
 
   ingress {
