@@ -1,21 +1,23 @@
-# Terraform GitLab on AWS
+# Terraform and Packer GitLab on AWS
 
 # 1. Installations
 
 ## 1.1 Windows
 
-Terraform Guide
+### 1.1.1 Chocolaty install
+
+Used to install Terraform, terraform-docs and Packer
+
+- [Installation link](https://chocolatey.org/install#install-step1)
+- Install in PowerShell. Run as Administrator
+
+### 1.1.2 Terraform install
 
 - [Installation Link](https://learn.hashicorp.com/terraform/getting-started/install)
 - Click the "Chocolatey on Windows" tab. Manual installation did not work for me
 - Make sure to run as Administrator using Command Prompt
 
-Chocolaty install
-
-- [Installation link](https://chocolatey.org/install#install-step1)
-- Install in PowerShell. Run as Administrator
-
-Install terraform-docs
+### 1.1.3 Install terraform-docs
 
 - Use Chocolaty to install. Run on Command Prompt. [Link](https://github.com/terraform-docs/terraform-docs)
 
@@ -23,6 +25,13 @@ Install terraform-docs
   choco install terraform-docs
   ```
 
+### 1.1.4 Packer install
+
+- Use Chocolaty to install. Run on Command Prompt. [Link](https://learn.hashicorp.com/packer/getting-started/install)
+
+  ```bash
+  choco install packer
+  ```
 
 # 2. Instructions
 
