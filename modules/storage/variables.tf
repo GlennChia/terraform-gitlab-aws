@@ -15,3 +15,8 @@ variable "gitlab_buckets" {
   type        = list(string)
   default     = ["gl-aws-artifacts", "gl-aws-external-diffs", "gl-aws-lfs-objects", "gl-aws-uploads", "gl-aws-packages", "gl-aws-dependency-proxy", "gl-aws-terraform-state"]
 }
+
+variable "vpce_id" {
+  description = "Id of the VPCE to associate with bucket policy"
+  type        = string
+}
