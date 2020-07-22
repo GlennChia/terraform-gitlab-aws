@@ -24,6 +24,7 @@ module "network" {
   vpc_cidr           = var.vpc_cidr
   availability_zones = data.aws_availability_zones.available.names
   cidrsubnet_newbits = var.cidrsubnet_newbits
+  region             = var.region
 }
 
 module "bastion" {
@@ -42,6 +43,7 @@ module "storage" {
 
   acl           = var.access_log_bucket_acl
   force_destroy = var.force_destroy
+  vpce_id       = module.network.vpce_id
   gitlab_buckets = [
     var.gitlab_artifacts_bucket_name, var.gitlab_external_diffs_bucket_name,
     var.gitlab_lfs_bucket_name, var.gitlab_uploads_bucket_name,
@@ -94,6 +96,7 @@ module "gitlab_image" {
   gitlab_uploads_bucket_name   = var.gitlab_uploads_bucket_name
   gitlab_packages_bucket_name  = var.gitlab_packages_bucket_name
   security_group_ids           = [module.loadbalancer.security_group_id]
-  subnet_id                    = module.network.this_subnet_public_ids[0]
+  visibility                   = var.visibility
+  subnet_id                    = module.network.this_subnet_private_ids[0]
   gitlab_key_name              = var.gitlab_key_name
 }

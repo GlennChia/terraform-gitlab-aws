@@ -123,3 +123,9 @@ variable "gitlab_terraform_state_bucket_name" {
   type        = string
   default     = "gl-aws-terraform-state"
 }
+
+variable "visibility" {
+  description = "Determines if the instance is private (behind a loadbalancer) or public (using its own dns)"
+  type        = string
+  default     = "private"
+}
