@@ -86,17 +86,20 @@ module "redis" {
 module "gitlab_image" {
   source = "../../modules/images/gitlab"
 
-  rds_address                  = module.database.rds_address
-  redis_address                = module.redis.primary_address
-  rds_password                 = var.rds_password
-  dns_name                     = module.loadbalancer.dns_name
-  region                       = var.region
-  gitlab_artifacts_bucket_name = var.gitlab_artifacts_bucket_name
-  gitlab_lfs_bucket_name       = var.gitlab_lfs_bucket_name
-  gitlab_uploads_bucket_name   = var.gitlab_uploads_bucket_name
-  gitlab_packages_bucket_name  = var.gitlab_packages_bucket_name
-  security_group_ids           = [module.loadbalancer.security_group_id]
-  visibility                   = var.visibility
-  subnet_id                    = module.network.this_subnet_private_ids[0]
-  gitlab_key_name              = var.gitlab_key_name
+  rds_address                         = module.database.rds_address
+  redis_address                       = module.redis.primary_address
+  rds_password                        = var.rds_password
+  dns_name                            = module.loadbalancer.dns_name
+  region                              = var.region
+  gitlab_artifacts_bucket_name        = var.gitlab_artifacts_bucket_name
+  gitlab_lfs_bucket_name              = var.gitlab_lfs_bucket_name
+  gitlab_uploads_bucket_name          = var.gitlab_uploads_bucket_name
+  gitlab_packages_bucket_name         = var.gitlab_packages_bucket_name
+  gitlab_external_diffs_bucket_name   = var.gitlab_external_diffs_bucket_name
+  gitlab_dependency_proxy_bucket_name = var.gitlab_dependency_proxy_bucket_name
+  gitlab_terraform_state_bucket_name  = var.gitlab_terraform_state_bucket_name
+  security_group_ids                  = [module.loadbalancer.security_group_id]
+  visibility                          = var.visibility
+  subnet_id                           = module.network.this_subnet_private_ids[0]
+  gitlab_key_name                     = var.gitlab_key_name
 }
