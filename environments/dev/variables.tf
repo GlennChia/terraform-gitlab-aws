@@ -129,3 +129,23 @@ variable "visibility" {
   type        = string
   default     = "private"
 }
+
+variable "gitaly_token" {
+  description = "The token authenticate gRPC requests to Gitaly"
+  type        = string
+}
+
+variable "secret_token" {
+  description = "The token for authentication callbacks from GitLab Shell to the GitLab internal API"
+  type        = string
+}
+
+variable "gitaly_key_name" {
+  description = "The Gitaly key name of a key that has already been created"
+  type        = string
+}
+
+variable "grafana_password" {
+  description = "Password to access Grafana"
+  type        = string
+}

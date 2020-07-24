@@ -98,8 +98,31 @@ module "gitlab_image" {
   gitlab_external_diffs_bucket_name   = var.gitlab_external_diffs_bucket_name
   gitlab_dependency_proxy_bucket_name = var.gitlab_dependency_proxy_bucket_name
   gitlab_terraform_state_bucket_name  = var.gitlab_terraform_state_bucket_name
+  gitaly_token                        = var.gitaly_token
+  secret_token                        = var.secret_token
   security_group_ids                  = [module.loadbalancer.security_group_id]
   visibility                          = var.visibility
   subnet_id                           = module.network.this_subnet_private_ids[0]
   gitlab_key_name                     = var.gitlab_key_name
+  grafana_password                    = var.grafana_password
+}
+
+module "iam" {
+  source = "../../modules/iam"
+}
+
+module "gitaly" {
+  source = "../../modules/gitaly"
+
+  gitaly_token               = var.gitaly_token
+  secret_token               = var.secret_token
+  visibility                 = var.visibility
+  lb_dns_name                = module.loadbalancer.dns_name
+  instance_dns_name          = module.gitlab_image.public_dns
+  vpc_id                     = module.network.vpc_id
+  subnet_id                  = module.network.this_subnet_private_ids[0]
+  key_name                   = var.gitaly_key_name
+  iam_instance_profile       = module.iam.ssm_instance_profile
+  ingress_security_group_ids = [module.loadbalancer.security_group_id]
+  bastion_security_group_id  = module.bastion.security_group_id
 }
