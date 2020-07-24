@@ -31,6 +31,7 @@ Install terraform-docs
 3. Run `terraform validate` to check for syntax errors. Run `terraform fmt` to format code
 4. Run `terraform plan` to understand the changes made
 5. Run `terraform apply -var-file="terraform.tfvars"` to run with the variables file (Create this file based on `terraform.template.tfvars` provided)
+Note: If we want to skip the prompt do `terraform apply -var-file="terraform.tfvars" -auto-approve`
 6. Run `terraform destroy` after deployment if used for testing
 
 # 3. Directory Structure and best practices
