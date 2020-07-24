@@ -79,7 +79,16 @@ resource "aws_security_group" "this" {
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = var.whitelist_ip
-    self = true
+    self        = true
+  }
+
+  ingress {
+    description = "Allow ingress for Prometheus"
+    from_port   = 9090
+    to_port     = 9090
+    protocol    = "tcp"
+    cidr_blocks = var.whitelist_ip
+    self        = true
   }
 
   ingress {
