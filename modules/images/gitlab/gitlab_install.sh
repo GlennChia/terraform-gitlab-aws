@@ -96,8 +96,23 @@ sed -i "s/# gitlab_rails\['terraform_state_object_store_enabled'\] = false/gitla
 sed -i "s/# gitlab_rails\['terraform_state_object_store_remote_directory'\] = .*/gitlab_rails\['terraform_state_object_store_remote_directory'\] = \"${terraform_state_bucket}\"/" gitlab.rb
 perl -i -pe "BEGIN{undef $/;} s/# gitlab_rails\['terraform_state_object_store_connection.*?# }/gitlab_rails['terraform_state_object_store_connection'] = \{\n  'provider' => 'AWS',\n  'region' => '${region}',\n  'use_iam_profile' => true\n\}/smg" gitlab.rb
 
+# Configure Gitaly client
+sed -i "s/# gitlab_rails\['gitaly_token'\] = .*/gitlab_rails\['gitaly_token'\] = \"${gitaly_token}\"/" gitlab.rb
+sed -i "s/# gitlab_shell\['secret_token'\] = .*/gitlab_shell\['secret_token'\] = \"${secret_token}\"/" gitlab.rb
+perl -i -pe "BEGIN{undef $/;} s/# git_data_dirs\(\{.*?# \}\)/git_data_dirs({\n  \"default\" => { \"gitaly_address\" => \"tcp://gitaly1.internal:8075\" },\n  \"storage1\" => { \"gitaly_address\" => \"tcp://gitaly1.internal:8075\" },\n})/smg" gitlab.rb
+
+# Configure Prometheus 
+sed -i "s/# prometheus\['enable'\] = .*/prometheus\['enable'\] = true/" gitlab.rb
+sed -i "s/# prometheus\['listen_address'\] = .*/prometheus\['listen_address'\] = ':9090'/" gitlab.rb
+
+# Configure grafana
+sed -i "s/# grafana\['disable_login_form'\] = .*/grafana\['disable_login_form'\] = false/" gitlab.rb
+sed -i "s/# grafana\['admin_password'\] = .*/grafana\['admin_password'\] = '${grafana_password}'/" gitlab.rb
+
 sudo gitlab-ctl reconfigure
 gitlab-rake gitlab:lfs:migrate
+
 # Run a check and a service status to make sure everything has been setup correctly
 # sudo gitlab-rake gitlab:check
 # sudo gitlab-ctl status
+# sudo gitlab-rake gitlab:gitaly:check

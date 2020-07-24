@@ -71,6 +71,21 @@ variable "gitlab_terraform_state_bucket_name" {
   default     = "gl-aws-terraform-state"
 }
 
+variable "gitaly_token" {
+  description = "The token authenticate gRPC requests to Gitaly"
+  type        = string
+}
+
+variable "secret_token" {
+  description = "The token for authentication callbacks from GitLab Shell to the GitLab internal API"
+  type        = string
+}
+
+variable "grafana_password" {
+  description = "Password to access Grafana"
+  type        = string
+}
+
 variable "instance_type" {
   description = "Instance type for the GitLab instance"
   type        = string

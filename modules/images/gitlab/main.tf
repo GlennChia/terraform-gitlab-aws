@@ -42,6 +42,14 @@
 * ## Additional details
 *
 * Install an ssm agent to ssh directly. The image is based on Ubuntu16.04.1 LTS Xenial but I use the install for the Ubuntu16.04 (deb) as this was the one that worked with bash. [Installation link](https://docs.aws.amazon.com/systems-manager/latest/userguide/agent-install-ubuntu.html#agent-install-ubuntu-tabs)
+*
+* For the Grafana setup, make sure to reset the password internally. Somehow this step can't be automated. Access Grafana at `https://<dns_name>/-/grafana`
+*
+* ```bash
+* gitlab-ctl set-grafana-password
+* ${grafana_password}
+* ${grafana_password}
+* ```
 */
 
 data "aws_iam_policy" "ssm" {
@@ -139,7 +147,10 @@ data "template_file" "this" {
     packages_bucket         = var.gitlab_packages_bucket_name,
     external_diffs_bucket   = var.gitlab_external_diffs_bucket_name,
     dependency_proxy_bucket = var.gitlab_dependency_proxy_bucket_name,
-    terraform_state_bucket  = var.gitlab_terraform_state_bucket_name
+    terraform_state_bucket  = var.gitlab_terraform_state_bucket_name,
+    gitaly_token            = var.gitaly_token,
+    secret_token            = var.secret_token
+    grafana_password        = var.grafana_password
   }
 }
 
