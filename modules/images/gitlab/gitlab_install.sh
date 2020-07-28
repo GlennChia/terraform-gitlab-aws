@@ -18,6 +18,7 @@ sudo /opt/gitlab/embedded/bin/psql -U gitlab -h ${rds_address} -d gitlabhq_produ
 ${rds_password}
 # Once inside the database
 CREATE EXTENSION pg_trgm;
+CREATE EXTENSION btree_gist;
 \q
 
 # Configure GitLab to connect to PostgreSQL and Redis
