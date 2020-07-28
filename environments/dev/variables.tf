@@ -124,6 +124,12 @@ variable "gitlab_terraform_state_bucket_name" {
   default     = "gl-aws-terraform-state"
 }
 
+variable "gitlab_aws_runner_cache" {
+  description = "The Runner Cache bucket's name"
+  type        = string
+  default     = "gl-aws-runner-cache"
+}
+
 variable "visibility" {
   description = "Determines if the instance is private (behind a loadbalancer) or public (using its own dns)"
   type        = string
@@ -147,5 +153,10 @@ variable "gitaly_key_name" {
 
 variable "grafana_password" {
   description = "Password to access Grafana"
+  type        = string
+}
+
+variable "gitlab_runner_key_name" {
+  description = "The GitLab runner key name of a key that has already been created"
   type        = string
 }

@@ -48,7 +48,7 @@ module "storage" {
     var.gitlab_artifacts_bucket_name, var.gitlab_external_diffs_bucket_name,
     var.gitlab_lfs_bucket_name, var.gitlab_uploads_bucket_name,
     var.gitlab_packages_bucket_name, var.gitlab_dependency_proxy_bucket_name,
-    var.gitlab_terraform_state_bucket_name
+    var.gitlab_terraform_state_bucket_name, var.gitlab_aws_runner_cache
   ]
 }
 
@@ -60,7 +60,7 @@ module "loadbalancer" {
   elb_log_s3_bucket_id            = module.storage.elb_log_s3_bucket_id
   whitelist_ip                    = var.whitelist_ip
   bastion_security_group_id       = module.bastion.security_group_id
-  http_ingress_security_group_ids = [module.gitaly.security_group_id]
+  http_ingress_security_group_ids = [module.gitlab_runner.security_group_id, module.gitaly.security_group_id]
 }
 
 module "database" {
@@ -126,4 +126,14 @@ module "gitaly" {
   iam_instance_profile             = module.iam.ssm_instance_profile
   custom_ingress_security_group_id = module.loadbalancer.security_group_id
   bastion_security_group_id        = module.bastion.security_group_id
+}
+
+module "gitlab_runner" {
+  source = "../../modules/gitlab_runner"
+
+  vpc_id                         = module.network.vpc_id
+  subnet_id                      = module.network.this_subnet_private_ids[0]
+  key_name                       = var.gitlab_runner_key_name
+  bastion_security_group_id      = module.bastion.security_group_id
+  http_ingress_security_group_id = module.loadbalancer.security_group_id
 }
