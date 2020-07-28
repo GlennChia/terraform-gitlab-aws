@@ -55,11 +55,12 @@ module "storage" {
 module "loadbalancer" {
   source = "../../modules/loadbalancer"
 
-  vpc_id                    = module.network.vpc_id
-  subnet_ids                = module.network.this_subnet_public_ids
-  elb_log_s3_bucket_id      = module.storage.elb_log_s3_bucket_id
-  whitelist_ip              = var.whitelist_ip
-  bastion_security_group_id = module.bastion.security_group_id
+  vpc_id                          = module.network.vpc_id
+  subnet_ids                      = module.network.this_subnet_public_ids
+  elb_log_s3_bucket_id            = module.storage.elb_log_s3_bucket_id
+  whitelist_ip                    = var.whitelist_ip
+  bastion_security_group_id       = module.bastion.security_group_id
+  http_ingress_security_group_ids = [module.gitaly.security_group_id]
 }
 
 module "database" {
@@ -102,7 +103,7 @@ module "gitlab_image" {
   secret_token                        = var.secret_token
   security_group_ids                  = [module.loadbalancer.security_group_id]
   visibility                          = var.visibility
-  subnet_id                           = module.network.this_subnet_private_ids[0]
+  subnet_id                           = module.network.this_subnet_public_ids[0]
   gitlab_key_name                     = var.gitlab_key_name
   grafana_password                    = var.grafana_password
 }
@@ -114,15 +115,15 @@ module "iam" {
 module "gitaly" {
   source = "../../modules/gitaly"
 
-  gitaly_token               = var.gitaly_token
-  secret_token               = var.secret_token
-  visibility                 = var.visibility
-  lb_dns_name                = module.loadbalancer.dns_name
-  instance_dns_name          = module.gitlab_image.public_dns
-  vpc_id                     = module.network.vpc_id
-  subnet_id                  = module.network.this_subnet_private_ids[0]
-  key_name                   = var.gitaly_key_name
-  iam_instance_profile       = module.iam.ssm_instance_profile
-  ingress_security_group_ids = [module.loadbalancer.security_group_id]
-  bastion_security_group_id  = module.bastion.security_group_id
+  gitaly_token                     = var.gitaly_token
+  secret_token                     = var.secret_token
+  visibility                       = var.visibility
+  lb_dns_name                      = module.loadbalancer.dns_name
+  instance_dns_name                = module.gitlab_image.public_dns
+  vpc_id                           = module.network.vpc_id
+  subnet_id                        = module.network.this_subnet_private_ids[0]
+  key_name                         = var.gitaly_key_name
+  iam_instance_profile             = module.iam.ssm_instance_profile
+  custom_ingress_security_group_id = module.loadbalancer.security_group_id
+  bastion_security_group_id        = module.bastion.security_group_id
 }

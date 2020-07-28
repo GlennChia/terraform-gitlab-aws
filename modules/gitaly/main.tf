@@ -1,6 +1,14 @@
 /**
 * # Gitaly Module
 *
+* ## Issues and fixes
+*
+* <b>Issue 1: Connection failed when I run the check</b>
+* 
+* Reason: When I terraform apply, sometimes the new public dns name of the GitLab instance does not update.
+*
+* Fix: Manually check the file to see if it updates and ensure that there is either http or https prefixed. Alternatively, run `terraform refresh` before apply
+*
 */
 
 data "aws_ami" "this" {
@@ -53,14 +61,6 @@ resource "aws_security_group" "this" {
   description = "Security group for the gitaly instance"
 
   ingress {
-    description     = "Allow ingress for custom, port 8075 (TCP), thru the ELB"
-    from_port       = 8075
-    to_port         = 8075
-    protocol        = "tcp"
-    security_groups = var.ingress_security_group_ids
-  }
-
-  ingress {
     description     = "Allow ingress for Git over SSH, port 22 (TCP), thru to gitaly"
     from_port       = 22
     to_port         = 22
@@ -78,4 +78,13 @@ resource "aws_security_group" "this" {
   tags = {
     Name = "gitlab-gitaly-sec-group"
   }
+}
+
+resource "aws_security_group_rule" "this" {
+  security_group_id        = aws_security_group.this.id
+  from_port                = 8075
+  to_port                  = 8075
+  protocol                 = "tcp"
+  type                     = "ingress"
+  source_security_group_id = var.custom_ingress_security_group_id
 }

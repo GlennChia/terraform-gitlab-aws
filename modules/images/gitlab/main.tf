@@ -41,6 +41,12 @@
 *
 * ## Additional details
 *
+* <b>Detail 1: Manual step needed to get the private IP of the Gitaly instance</b>
+*
+* Since there is a cicrcular dependency, we have to manually add in the gitaly private IP.
+*
+* <b>Detail 2: Install an SSM agent</b>
+*
 * Install an ssm agent to ssh directly. The image is based on Ubuntu16.04.1 LTS Xenial but I use the install for the Ubuntu16.04 (deb) as this was the one that worked with bash. [Installation link](https://docs.aws.amazon.com/systems-manager/latest/userguide/agent-install-ubuntu.html#agent-install-ubuntu-tabs)
 *
 * For the Grafana setup, make sure to reset the password internally. Somehow this step can't be automated. Access Grafana at `https://<dns_name>/-/grafana`

@@ -79,6 +79,7 @@ resource "aws_security_group" "this" {
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = var.whitelist_ip
+    security_groups = var.http_ingress_security_group_ids
     self        = true
   }
 

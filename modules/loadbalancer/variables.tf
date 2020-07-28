@@ -46,3 +46,8 @@ variable "connection_draining_timeout" {
   type        = number
   default     = 300
 }
+
+variable "http_ingress_security_group_ids" {
+  description = "The ids of the security groups allows to hit HTTP endpoint"
+  type        = list(string)
+}

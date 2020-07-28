@@ -55,9 +55,9 @@ variable "bastion_security_group_id" {
   type        = string
 }
 
-variable "ingress_security_group_ids" {
-  description = "The list security group id of the security group that is allowed ingress"
-  type        = list(string)
+variable "custom_ingress_security_group_id" {
+  description = "The security group id of the security group that is allowed ingress on custom port 8075"
+  type        = string
 }
 
 variable "volume_type" {
