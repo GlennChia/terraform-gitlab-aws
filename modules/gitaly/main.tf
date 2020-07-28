@@ -35,13 +35,13 @@ data "template_file" "this" {
 }
 
 resource "aws_instance" "this" {
-  ami                  = data.aws_ami.this.id
-  instance_type        = var.instance_type
-  iam_instance_profile = var.iam_instance_profile
-  security_groups      = [aws_security_group.this.id]
-  subnet_id            = var.subnet_id
-  key_name             = var.key_name
-  user_data            = data.template_file.this.rendered
+  ami                    = data.aws_ami.this.id
+  instance_type          = var.instance_type
+  iam_instance_profile   = var.iam_instance_profile
+  vpc_security_group_ids = [aws_security_group.this.id]
+  subnet_id              = var.subnet_id
+  key_name               = var.key_name
+  user_data              = data.template_file.this.rendered
 
   root_block_device {
     volume_type           = var.volume_type
@@ -60,31 +60,37 @@ resource "aws_security_group" "this" {
   vpc_id      = var.vpc_id
   description = "Security group for the gitaly instance"
 
-  ingress {
-    description     = "Allow ingress for Git over SSH, port 22 (TCP), thru to gitaly"
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [var.bastion_security_group_id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   tags = {
     Name = "gitlab-gitaly-sec-group"
   }
 }
 
-resource "aws_security_group_rule" "this" {
+resource "aws_security_group_rule" "ingress_ssh" {
+  description              = "Allow ingress for Git over SSH, port 22 (TCP), thru to gitaly"
+  security_group_id        = aws_security_group.this.id
+  from_port                = 22
+  to_port                  = 22
+  protocol                 = "tcp"
+  type                     = "ingress"
+  source_security_group_id = var.bastion_security_group_id
+}
+
+resource "aws_security_group_rule" "ingress_custom" {
+  description              = "Allow custom ingress for Gitaly"
   security_group_id        = aws_security_group.this.id
   from_port                = 8075
   to_port                  = 8075
   protocol                 = "tcp"
   type                     = "ingress"
   source_security_group_id = var.custom_ingress_security_group_id
+}
+
+resource "aws_security_group_rule" "egress_all" {
+  description       = "Allow all egress traffic"
+  security_group_id = aws_security_group.this.id
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  type              = "egress"
+  cidr_blocks       = ["0.0.0.0/0"]
 }

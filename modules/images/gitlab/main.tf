@@ -164,7 +164,7 @@ resource "aws_instance" "this" {
   ami                  = data.aws_ami.this.id
   iam_instance_profile = aws_iam_instance_profile.this.name
   instance_type        = var.instance_type
-  security_groups      = var.security_group_ids
+  vpc_security_group_ids    = var.security_group_ids
   subnet_id            = var.subnet_id
   key_name             = var.gitlab_key_name
   user_data            = data.template_file.this.rendered
@@ -174,15 +174,15 @@ resource "aws_instance" "this" {
   }
 }
 
-resource "random_id" "this" {
-  keepers = {
-    uuid = "${uuid()}"
-  }
-  byte_length = 8
+# resource "random_id" "this" {
+#   keepers = {
+#     uuid = "${uuid()}"
+#   }
+#   byte_length = 8
 
-}
+# }
 
-resource "aws_ami_from_instance" "this" {
-  name               = "GitLab-Source ${random_id.this.hex}"
-  source_instance_id = aws_instance.this.id
-}
+# resource "aws_ami_from_instance" "this" {
+#   name               = "GitLab-Source ${random_id.this.hex}"
+#   source_instance_id = aws_instance.this.id
+# }

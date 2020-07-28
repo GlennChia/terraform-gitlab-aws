@@ -122,13 +122,13 @@ data "template_file" "this" {
 }
 
 resource "aws_instance" "this" {
-  ami                  = data.aws_ami.this.id
-  instance_type        = var.instance_type
-  iam_instance_profile = aws_iam_instance_profile.this.name
-  security_groups      = [aws_security_group.this.id]
-  subnet_id            = var.subnet_id
-  key_name             = var.key_name
-  user_data            = data.template_file.this.rendered
+  ami                    = data.aws_ami.this.id
+  instance_type          = var.instance_type
+  iam_instance_profile   = aws_iam_instance_profile.this.name
+  vpc_security_group_ids = [aws_security_group.this.id]
+  subnet_id              = var.subnet_id
+  key_name               = var.key_name
+  user_data              = data.template_file.this.rendered
 
   tags = {
     Name = "Gitlab-runner"
@@ -140,40 +140,37 @@ resource "aws_security_group" "this" {
   vpc_id      = var.vpc_id
   description = "Security group for the GitLab Runner Manager instance"
 
-  ingress {
-    description     = "Allow ingress for Git over SSH, port 22 (TCP), thru to gitaly"
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [var.bastion_security_group_id]
-  }
-
-  # ingress {
-  #   description = "Allow ingress for HTTP, port 80 (TCP)"
-  #   from_port   = 80
-  #   to_port     = 80
-  #   protocol    = "tcp"
-  #   security_groups = var.http_ingress_security_group_ids
-  #   self        = true
-  # }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   tags = {
     Name = "gitlab-runner-sec-group"
   }
 }
 
-resource "aws_security_group_rule" "this" {
+resource "aws_security_group_rule" "ingress_ssh" {
+  description              = "Allow ingress for Git over SSH, port 22 (TCP), thru to gitlab runner"
+  security_group_id        = aws_security_group.this.id
+  from_port                = 22
+  to_port                  = 22
+  protocol                 = "tcp"
+  type                     = "ingress"
+  source_security_group_id = var.bastion_security_group_id
+}
+
+resource "aws_security_group_rule" "ingress_http" {
+  description              = "Allow ingress for Git over HTTP, port 80 (TCP), thru to gitlab runner"
   security_group_id        = aws_security_group.this.id
   from_port                = 80
   to_port                  = 80
   protocol                 = "tcp"
   type                     = "ingress"
   source_security_group_id = var.http_ingress_security_group_id
+}
+
+resource "aws_security_group_rule" "egress_all" {
+  description       = "Allow all egress traffic"
+  security_group_id = aws_security_group.this.id
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  type              = "egress"
+  cidr_blocks       = ["0.0.0.0/0"]
 }
