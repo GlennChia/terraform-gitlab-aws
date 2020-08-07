@@ -5,7 +5,7 @@
 *
 * <b>Issue 1: Finding the `owner` of the image</b>
 *
-* This [link](https://www.terraform.io/docs/configuration/data-sources.html) mentions that the `owners` tag is compulsory. To find which is the correct value, use the console to get the ami-id and then run the following command. In this case I use the ami-id of a gitlab AMI
+* This [link](https://www.terraform.io/docs/configuration/data-sources.html) mentions that the `owners` tag is compulsory. To find which is the correct value, use the console to get the ami-id and then run the following command. In this case I use the ami-id of a gitlab AMI. The first command is Gitlab EE 12.9.2.The second command is Gitlab EE 13.1.4.
 *
 * ```bash
 * aws ec2 describe-images --image-id ami-056524c0a8b3d1d92
@@ -43,7 +43,11 @@
 *
 * <b>Detail 1: Manual step needed to get the private IP of the Gitaly instance</b>
 *
-* Since there is a cicrcular dependency, we have to manually add in the gitaly private IP.
+* Since there is a cicrcular dependency, we have to manually add in the gitaly private IP. This is the helper command. Remember to change the IP
+*
+* ```bash
+* sed -i "s/gitaly_internal_ip/10.0.3.50/" gitlab.rb
+* ```
 *
 * <b>Detail 2: Install an SSM agent</b>
 *
@@ -56,6 +60,22 @@
 * ${grafana_password}
 * ${grafana_password}
 * ```
+*
+* <b>Detail 3: Install GitLab ee 13.2 from an Ubuntu 18.04 instance</b>
+*
+* Since GitLab updraded, a few steps changed. The new code can be found in the bash script provided
+*
+* Some nuances are:
+* 
+* * For iam configuration use `['object_store_connection']` instead of `['object_store']['connection']`
+* * Version 13.2 requires all the buckets to be present
+*
+* <b>Detail 4: Checking GitLab version</b>
+*
+* ```bash
+* sudo gitlab-rake gitlab:env:info
+* ```
+*
 */
 
 data "aws_iam_policy" "ssm" {
@@ -131,14 +151,14 @@ data "aws_ami" "this" {
 
   filter {
     name   = "name"
-    values = ["GitLab EE 13.1.4"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-20200611"]
   }
 
-  owners = ["782774275127"]
+  owners = ["099720109477"]
 }
 
 data "template_file" "this" {
-  template = "${file("../../modules/images/gitlab/gitlab_install.sh")}"
+  template = "${file("../../modules/images/gitlab/gitlab_install_13_2_3.sh")}"
 
   vars = {
     rds_address             = var.rds_address,
