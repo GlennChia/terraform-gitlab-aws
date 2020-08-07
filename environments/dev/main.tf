@@ -137,3 +137,9 @@ module "gitlab_runner" {
   bastion_security_group_id      = module.bastion.security_group_id
   http_ingress_security_group_id = module.loadbalancer.security_group_id
 }
+
+module "eks" {
+  source = "../../modules/eks"
+
+  subnet_ids = module.network.this_subnet_private_ids
+}
