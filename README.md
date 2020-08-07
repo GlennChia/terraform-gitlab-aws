@@ -32,6 +32,7 @@ Install terraform-docs
 4. Run `terraform plan` to understand the changes made
 5. Run `terraform apply -var-file="terraform.tfvars"` to run with the variables file (Create this file based on `terraform.template.tfvars` provided)
 Note: If we want to skip the prompt do `terraform apply -var-file="terraform.tfvars" -auto-approve`
+Note: If we want to target only certain resources, we can do `terraform apply -var-file="terraform.tfvars" -target module.eks`
 6. Run `terraform destroy` after deployment if used for testing
 
 # 3. Directory Structure and best practices
@@ -59,3 +60,24 @@ Using modules
 
 - [How to create reusable infrastructure with Terraform modules](https://blog.gruntwork.io/@brikis98?source=post_page-----25526d65f73d----------------------)
 
+# 4. Interesting bash tips
+
+**Getting part of the output of a command in bash**
+
+Refer to this [link](https://stackoverflow.com/questions/25116521/how-do-i-get-a-part-of-the-output-of-a-command-in-linux-bash)
+
+Example: This command refers to the first output of the second line
+
+```bash
+kubectl get secrets | awk 'NR==2{print $1}'
+```
+
+**Storing the output of a command in bash in a variable to be referenced elsewhere in a bash file**
+
+Refer to this [link](https://www.tecmint.com/assign-linux-command-output-to-variable/#:~:text=shell%20scripting%20purpose.-,To%20store%20the%20output%20of%20a%20command%20in%20a%20variable,command%20%5Boption%20...%5D)
+
+Example
+
+```bash
+token_name=$(kubectl get secrets | awk 'NR==2{print $1}')
+```
