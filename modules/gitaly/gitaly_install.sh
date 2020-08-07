@@ -12,7 +12,7 @@ sudo su
 sudo apt-get update
 sudo apt-get install -y curl openssh-server ca-certificates
 curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.deb.sh | sudo bash
-sudo apt-get install gitlab-ee
+sudo apt-get install gitlab-ee=13.2.3-ee.0
 cd /etc/gitlab
 sed -i "s/# gitaly\['auth_token'\] = .*/gitaly\['auth_token'\] = \"${gitaly_token}\"/" gitlab.rb
 echo "gitlab_shell['secret_token'] = \"${secret_token}\"" >> gitlab.rb
