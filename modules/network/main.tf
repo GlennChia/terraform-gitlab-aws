@@ -50,7 +50,8 @@ resource "aws_subnet" "private" {
   availability_zone = var.availability_zones[count.index]
 
   tags = {
-    Name = "gitlab-private-${cidrsubnet(var.vpc_cidr, var.cidrsubnet_newbits, length(var.availability_zones) + count.index)}"
+    Name = "gitlab-private-${cidrsubnet(var.vpc_cidr, var.cidrsubnet_newbits, length(var.availability_zones) + count.index)}",
+    "kubernetes.io/cluster/gitlab" = "shared"
   }
 }
 

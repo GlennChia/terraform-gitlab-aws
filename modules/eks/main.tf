@@ -1,6 +1,33 @@
 /**
 * # EKS Module
 *
+* ## Issues and fixes
+*
+* <b>Issue 1: When installing GItLab Runner from the GitLab Kubernetes admin page I get `Something went wrong while installing GitLab Runner Operation timed out. Check pod logs for install-runner for more details.`</b>
+*
+* Inspecting the issue
+* * To debug this issue, I ran `kubectl get pods -n  gitlab-managed-apps` and found out that the `STATUS` was `PENDING`
+* * I then ran `kubectl describe pod install-runner  -n  gitlab-managed-apps ` and saw that the error message was `no nodes available to schedule pods`
+*
+* Fix:
+* * Create a `aws_eks_node_group` and attach it to the `aws_eks_cluster`. This explicitly creates a node group to launch the pods in
+*
+* <b>Issue 2: After setting up EKS installing the runner, destroying EKS and then installing the runner again, the admin/Runners page has a 500 error</b>
+*
+* This [link](https://stackoverflow.com/questions/54216933/internal-server-error-500-while-accessing-gitlab-admin-runners) contained the fix
+*
+* Fix: On the GitLab instance, run the following
+*
+* ```bash
+* gitlab-rails dbconsole
+*
+* # Once inside the DB after entering the RDS DB password
+* UPDATE projects SET runners_token = null, runners_token_encrypted = null;
+* UPDATE namespaces SET runners_token = null, runners_token_encrypted = null;
+* UPDATE application_settings SET runners_registration_token_encrypted = null;
+* UPDATE ci_runners SET token = null, token_encrypted = null;
+* ```
+*
 * ## Additional details
 *
 * <b>Detail 1: Creating the Amazon EKS cluster role</b>
@@ -73,11 +100,7 @@
 *
 */
 
-data "aws_iam_policy" "this" {
-  arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-}
-
-resource "aws_iam_role" "this" {
+resource "aws_iam_role" "eks_cluster" {
   name               = "eksClusterRole"
   assume_role_policy = <<EOF
 {
@@ -96,20 +119,108 @@ resource "aws_iam_role" "this" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "this" {
-  role       = aws_iam_role.this.name
-  policy_arn = data.aws_iam_policy.this.arn
+resource "aws_iam_role_policy_attachment" "AmazonEKSClusterPolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.eks_cluster.name
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEKSServicePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+  role       = aws_iam_role.eks_cluster.name
 }
 
 resource "aws_eks_cluster" "this" {
   name     = "gitlab"
-  role_arn = aws_iam_role.this.arn
+  role_arn = aws_iam_role.eks_cluster.arn
+  version  = "1.16"
 
   vpc_config {
-    subnet_ids = var.subnet_ids
+    subnet_ids         = var.subnet_ids
+    security_group_ids = [aws_security_group.this.id]
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.this
+    aws_iam_role_policy_attachment.AmazonEKSClusterPolicy,
+    aws_iam_role_policy_attachment.AmazonEKSServicePolicy,
+    aws_iam_role.eks_cluster
+  ]
+}
+
+resource "aws_security_group" "this" {
+  name        = "eks-cluster-sg-gitlab"
+  vpc_id      = var.vpc_id
+  description = "Security group for the EKS cluster"
+
+  ingress {
+    description     = "Allow ingress from GitLab and self"
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = var.ingress_security_group_ids
+    self            = true
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "eks-cluster-sg-gitlab"
+  }
+}
+
+resource "aws_iam_role" "eks_nodes" {
+  name = "eks-node-group-tuto"
+
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEKSWorkerNodePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.eks_nodes.name
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_Policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.eks_nodes.name
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.eks_nodes.name
+}
+
+resource "aws_eks_node_group" "this" {
+  cluster_name    = aws_eks_cluster.this.name
+  node_group_name = "gitlab_node"
+  node_role_arn   = aws_iam_role.eks_nodes.arn
+  subnet_ids      = var.subnet_ids
+
+  scaling_config {
+    desired_size = 1
+    max_size     = 1
+    min_size     = 1
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
+    aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
+    aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
   ]
 }

@@ -141,5 +141,7 @@ module "gitlab_runner" {
 module "eks" {
   source = "../../modules/eks"
 
-  subnet_ids = module.network.this_subnet_private_ids
+  subnet_ids                 = module.network.this_subnet_private_ids
+  ingress_security_group_ids = [module.loadbalancer.security_group_id]
+  vpc_id                     = module.network.vpc_id
 }
