@@ -14,7 +14,7 @@
 *
 * <b>Issue 2: After setting up EKS installing the runner, destroying EKS and then installing the runner again, the admin/Runners page has a 500 error</b>
 *
-* This [link](https://stackoverflow.com/questions/54216933/internal-server-error-500-while-accessing-gitlab-admin-runners) contained the fix
+* This [link](https://stackoverflow.com/questions/54216933/internal-server-error-500-while-accessing-gitlab-admin-runners) contained the fix. Supported by [oddicial documentation](https://docs.gitlab.com/ee/raketasks/backup_restore.html#reset-runner-registration-tokens)
 *
 * Fix: On the GitLab instance, run the following
 *
@@ -132,7 +132,7 @@ resource "aws_iam_role_policy_attachment" "AmazonEKSServicePolicy" {
 resource "aws_eks_cluster" "this" {
   name     = "gitlab"
   role_arn = aws_iam_role.eks_cluster.arn
-  version  = "1.16"
+  version  = "1.17"
 
   vpc_config {
     subnet_ids         = var.subnet_ids
@@ -173,7 +173,7 @@ resource "aws_security_group" "this" {
 }
 
 resource "aws_iam_role" "eks_nodes" {
-  name = "eks-node-group-tuto"
+  name = "eks-node-group"
 
   assume_role_policy = <<POLICY
 {
@@ -208,14 +208,14 @@ resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly" {
 
 resource "aws_eks_node_group" "this" {
   cluster_name    = aws_eks_cluster.this.name
-  node_group_name = "gitlab_node"
+  node_group_name = "gitlab"
   node_role_arn   = aws_iam_role.eks_nodes.arn
   subnet_ids      = var.subnet_ids
 
   scaling_config {
-    desired_size = 1
-    max_size     = 1
-    min_size     = 1
+    desired_size = 2
+    max_size     = 2
+    min_size     = 2
   }
 
   depends_on = [
