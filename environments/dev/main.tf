@@ -60,7 +60,7 @@ module "loadbalancer" {
   elb_log_s3_bucket_id            = module.storage.elb_log_s3_bucket_id
   whitelist_ip                    = var.whitelist_ip
   bastion_security_group_id       = module.bastion.security_group_id
-  http_ingress_security_group_ids = [module.gitlab_runner.security_group_id, module.gitaly.security_group_id]
+  http_ingress_security_group_ids = [module.gitlab_runner.security_group_id, module.gitaly.security_group_id, module.eks.security_group_id]
 }
 
 module "database" {
@@ -141,7 +141,7 @@ module "gitlab_runner" {
 module "eks" {
   source = "../../modules/eks"
 
-  subnet_ids                 = module.network.this_subnet_private_ids
-  ingress_security_group_ids = [module.loadbalancer.security_group_id]
-  vpc_id                     = module.network.vpc_id
+  subnet_ids                = module.network.this_subnet_private_ids
+  ingress_security_group_id = module.loadbalancer.security_group_id
+  vpc_id                    = module.network.vpc_id
 }

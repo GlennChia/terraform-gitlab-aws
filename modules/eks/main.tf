@@ -151,25 +151,30 @@ resource "aws_security_group" "this" {
   vpc_id      = var.vpc_id
   description = "Security group for the EKS cluster"
 
-  ingress {
-    description     = "Allow ingress from GitLab and self"
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = var.ingress_security_group_ids
-    self            = true
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   tags = {
     Name = "eks-cluster-sg-gitlab"
   }
+}
+
+resource "aws_security_group_rule" "ingress_all" {
+  description              = "Allow all ingress traffic"
+  security_group_id        = aws_security_group.this.id
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  type                     = "ingress"
+  source_security_group_id = var.ingress_security_group_id
+}
+
+
+resource "aws_security_group_rule" "egress_all" {
+  description       = "Allow all egress traffic"
+  security_group_id = aws_security_group.this.id
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  type              = "egress"
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 resource "aws_iam_role" "eks_nodes" {
