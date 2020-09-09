@@ -223,6 +223,10 @@ resource "aws_eks_node_group" "this" {
     min_size     = 2
   }
 
+  tags = {
+    Name = "gitlab-eks-node-group"
+  }
+
   depends_on = [
     aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
