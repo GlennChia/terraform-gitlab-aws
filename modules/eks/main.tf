@@ -196,6 +196,37 @@ resource "aws_iam_role" "eks_nodes" {
 POLICY
 }
 
+resource "aws_iam_policy" "this" {
+  name        = "EKSNodeGroupCustomPolicies"
+  path        = "/"
+  description = "EKS Node Group Custom Policies for deploying CloudFormation Stack"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "iam:ListInstance*",
+        "iam:ListRole*",
+        "iam:ListPolicy*",
+        "iam:ListPolicies*",
+        "iam:GetInstanceProfile",
+        "iam:GetPolicy*",
+        "iam:GetRole*",
+        "iam:GetService*",
+        "iam:PassRole"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "*"
+      ]
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_iam_role_policy_attachment" "AmazonEKSWorkerNodePolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
   role       = aws_iam_role.eks_nodes.name
@@ -209,6 +240,16 @@ resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_Policy" {
 resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryPowerUser" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
   role       = aws_iam_role.eks_nodes.name
+}
+
+resource "aws_iam_role_policy_attachment" "AWSCloudFormationFullAccess" {
+  policy_arn = "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess"
+  role       = aws_iam_role.eks_nodes.name
+}
+
+resource "aws_iam_role_policy_attachment" "EKSNodeGroupCustomPolicies" {
+  policy_arn = aws_iam_policy.this.arn
+  role       = aws_iam_role.eks_nodes.name 
 }
 
 resource "aws_eks_node_group" "this" {
@@ -231,5 +272,7 @@ resource "aws_eks_node_group" "this" {
     aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
     aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryPowerUser,
+    aws_iam_role_policy_attachment.AWSCloudFormationFullAccess,
+    aws_iam_role_policy_attachment.EKSNodeGroupCustomPolicies
   ]
 }
