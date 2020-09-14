@@ -61,16 +61,7 @@
 * ${grafana_password}
 * ```
 *
-* <b>Detail 3: Install GitLab ee 13.2 from an Ubuntu 18.04 instance</b>
-*
-* Since GitLab updraded, a few steps changed. The new code can be found in the bash script provided
-*
-* Some nuances are:
-* 
-* * For iam configuration use `['object_store_connection']` instead of `['object_store']['connection']`
-* * Version 13.2 requires all the buckets to be present
-*
-* <b>Detail 4: Checking GitLab version</b>
+* <b>Detail 3: Checking GitLab version</b>
 *
 * ```bash
 * sudo gitlab-rake gitlab:env:info
@@ -183,13 +174,13 @@ data "template_file" "this" {
 }
 
 resource "aws_instance" "this" {
-  ami                  = data.aws_ami.this.id
-  iam_instance_profile = aws_iam_instance_profile.this.name
-  instance_type        = var.instance_type
-  vpc_security_group_ids    = var.security_group_ids
-  subnet_id            = var.subnet_id
-  key_name             = var.gitlab_key_name
-  user_data            = data.template_file.this.rendered
+  ami                    = data.aws_ami.this.id
+  iam_instance_profile   = aws_iam_instance_profile.this.name
+  instance_type          = var.instance_type
+  vpc_security_group_ids = var.security_group_ids
+  subnet_id              = var.subnet_id
+  key_name               = var.gitlab_key_name
+  user_data              = data.template_file.this.rendered
 
   tags = {
     Name = "Gitlab"
