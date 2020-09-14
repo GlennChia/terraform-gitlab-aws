@@ -49,7 +49,7 @@ sudo gitlab-ctl reconfigure
 # Configure S3 integration
 sed -i "s/gitlab_rails\['object_store'\]\['enabled'\] = false/gitlab_rails\['object_store'\]\['enabled'\] = true/" gitlab.rb
 sed -i "s/gitlab_rails\['object_store'\]\['proxy_download'\] = false/gitlab_rails\['object_store'\]\['proxy_download'\] = true/" gitlab.rb
-sed -i "s/gitlab_rails\['object_store'\]\['connection'\] = {}/gitlab_rails['object_store_connection'] = \{\n  'provider' => 'AWS',\n  'region' => '${region}',\n  'use_iam_profile' => true\n\}/" gitlab.rb
+sed -i "s/gitlab_rails\['object_store'\]\['connection'\] = {}/gitlab_rails\['object_store'\]\['connection'\] = \{\n  'provider' => 'AWS',\n  'region' => '${region}',\n  'use_iam_profile' => true\n\}/" gitlab.rb
 sed -i "s/gitlab_rails\['object_store'\]\['objects'\]\['artifacts'\]\['bucket'\] = nil/gitlab_rails\['object_store'\]\['objects'\]\['artifacts'\]\['bucket'\] = '${artifacts_bucket}'/" gitlab.rb
 sed -i "s/gitlab_rails\['object_store'\]\['objects'\]\['external_diffs'\]\['bucket'\] = nil/gitlab_rails\['object_store'\]\['objects'\]\['external_diffs'\]\['bucket'\] = '${external_diffs_bucket}'/" gitlab.rb
 sed -i "s/gitlab_rails\['object_store'\]\['objects'\]\['lfs'\]\['bucket'\] = nil/gitlab_rails\['object_store'\]\['objects'\]\['lfs'\]\['bucket'\] = '${lfs_objects_bucket}'/" gitlab.rb
