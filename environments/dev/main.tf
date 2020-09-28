@@ -87,6 +87,7 @@ module "redis" {
 module "gitlab_image" {
   source = "../../modules/images/gitlab"
 
+  private_ip_gitlab                   = var.private_ip_gitlab
   rds_address                         = module.database.rds_address
   redis_address                       = module.redis.primary_address
   rds_password                        = var.rds_password
@@ -101,6 +102,7 @@ module "gitlab_image" {
   gitlab_terraform_state_bucket_name  = var.gitlab_terraform_state_bucket_name
   gitaly_token                        = var.gitaly_token
   secret_token                        = var.secret_token
+  private_ips_gitaly                  = var.private_ips_gitaly
   security_group_ids                  = [module.loadbalancer.security_group_id]
   visibility                          = var.visibility
   subnet_id                           = module.network.this_subnet_public_ids[0]
@@ -122,6 +124,7 @@ module "gitaly" {
   instance_dns_name                = module.gitlab_image.public_dns
   vpc_id                           = module.network.vpc_id
   subnet_id                        = module.network.this_subnet_private_ids[0]
+  private_ip                       = var.private_ips_gitaly[0]
   key_name                         = var.gitaly_key_name
   iam_instance_profile             = module.iam.ssm_instance_profile
   custom_ingress_security_group_id = module.loadbalancer.security_group_id

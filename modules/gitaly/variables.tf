@@ -45,6 +45,11 @@ variable "subnet_id" {
   type        = string
 }
 
+variable "private_ip" {
+  description = "Assigned private ip to gitaly instance"
+  type        = string
+}
+
 variable "key_name" {
   description = "The key name of a key that has already been created that will be attached to the Gitaly instance"
   type        = string

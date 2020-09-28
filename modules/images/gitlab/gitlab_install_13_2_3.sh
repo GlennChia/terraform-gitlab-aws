@@ -62,7 +62,7 @@ sed -i "s/gitlab_rails\['object_store'\]\['objects'\]\['terraform_state'\]\['buc
 sed -i "s/# gitlab_rails\['gitaly_token'\] = .*/gitlab_rails\['gitaly_token'\] = \"${gitaly_token}\"/" gitlab.rb
 echo "gitlab_shell['secret_token'] = \"${secret_token}\"" >> gitlab.rb
 # The step below has to be done manually. Replace gitaly_internal_ip after the gitaly instance is up
-perl -i -pe "BEGIN{undef $/;} s/# git_data_dirs\(\{.*?# \}\)/git_data_dirs({\n  \"default\" => { \"gitaly_address\" => \"tcp:\/\/gitaly_internal_ip:8075\" },\n  \"storage1\" => { \"gitaly_address\" => \"tcp:\/\/gitaly_internal_ip:8075\" },\n})/smg" gitlab.rb
+perl -i -pe "BEGIN{undef $/;} s/# git_data_dirs\(\{.*?# \}\)/git_data_dirs({\n  \"default\" => { \"gitaly_address\" => \"tcp:\/\/${gitaly_address1}:8075\" },\n  \"storage1\" => { \"gitaly_address\" => \"tcp:\/\/${gitaly_address1}:8075\" },\n})/smg" gitlab.rb
 
 # Configure Prometheus 
 sed -i "s/# prometheus\['enable'\] = .*/prometheus\['enable'\] = true/" gitlab.rb

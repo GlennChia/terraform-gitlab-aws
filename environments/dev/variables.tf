@@ -136,6 +136,11 @@ variable "visibility" {
   default     = "private"
 }
 
+variable "private_ip_gitlab" {
+  description = "The private ip of the GitLab instance. Instance removed in HA"
+  type        = string
+}
+
 variable "gitaly_token" {
   description = "The token authenticate gRPC requests to Gitaly"
   type        = string
@@ -144,6 +149,11 @@ variable "gitaly_token" {
 variable "secret_token" {
   description = "The token for authentication callbacks from GitLab Shell to the GitLab internal API"
   type        = string
+}
+
+variable "private_ips_gitaly" {
+  description = "Assigned private ips to gitaly instances"
+  type        = list(string)
 }
 
 variable "gitaly_key_name" {

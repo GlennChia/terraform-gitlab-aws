@@ -40,6 +40,7 @@ resource "aws_instance" "this" {
   iam_instance_profile   = var.iam_instance_profile
   vpc_security_group_ids = [aws_security_group.this.id]
   subnet_id              = var.subnet_id
+  private_ip             = var.private_ip
   key_name               = var.key_name
   user_data              = data.template_file.this.rendered
 

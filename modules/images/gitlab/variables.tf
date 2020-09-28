@@ -1,3 +1,8 @@
+variable "private_ip_gitlab" {
+  description = "The private ip of the GitLab instance. Instance removed in HA"
+  type        = string
+}
+
 variable "rds_address" {
   description = "The hostname of the RDS instance which does not have `port`"
   type        = string
@@ -79,6 +84,11 @@ variable "gitaly_token" {
 variable "secret_token" {
   description = "The token for authentication callbacks from GitLab Shell to the GitLab internal API"
   type        = string
+}
+
+variable "private_ips_gitaly" {
+  description = "Assigned private ips to gitaly instances "
+  type        = list(string)
 }
 
 variable "grafana_password" {

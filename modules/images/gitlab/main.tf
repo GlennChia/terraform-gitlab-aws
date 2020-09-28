@@ -167,6 +167,7 @@ data "template_file" "this" {
     external_diffs_bucket   = var.gitlab_external_diffs_bucket_name,
     dependency_proxy_bucket = var.gitlab_dependency_proxy_bucket_name,
     terraform_state_bucket  = var.gitlab_terraform_state_bucket_name,
+    gitaly_address1         = var.private_ips_gitaly[0]
     gitaly_token            = var.gitaly_token,
     secret_token            = var.secret_token
     grafana_password        = var.grafana_password
@@ -179,6 +180,7 @@ resource "aws_instance" "this" {
   instance_type          = var.instance_type
   vpc_security_group_ids = var.security_group_ids
   subnet_id              = var.subnet_id
+  private_ip             = var.private_ip_gitlab
   key_name               = var.gitlab_key_name
   user_data              = data.template_file.this.rendered
 
