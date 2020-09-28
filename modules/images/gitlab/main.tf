@@ -156,6 +156,8 @@ data "template_file" "this" {
   vars = {
     rds_address             = var.rds_address,
     redis_address           = var.redis_address,
+    rds_name                = var.rds_name,
+    rds_username            = var.rds_username,
     rds_password            = var.rds_password,
     dns_name                = var.dns_name,
     visibility              = var.visibility

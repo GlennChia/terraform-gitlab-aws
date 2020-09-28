@@ -16,7 +16,7 @@ resource "aws_db_subnet_group" "this" {
 }
 
 resource "aws_db_instance" "this" {
-  name                       = "gitlabhq_production"
+  name                       = var.rds_name
   allocated_storage          = var.allocated_storage
   auto_minor_version_upgrade = var.auto_minor_version_upgrade
   backup_retention_period    = var.backup_retention_period

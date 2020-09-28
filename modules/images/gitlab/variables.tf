@@ -13,6 +13,17 @@ variable "redis_address" {
   type        = string
 }
 
+variable "rds_name" {
+  description = "The name of the database to create when the DB instance is created."
+  type        = string
+  default     = "gitlabhq_production"
+}
+
+variable "rds_username" {
+  description = "Username for the master DB user"
+  type        = string
+}
+
 variable "rds_password" {
   description = "Password for the master DB user"
   type        = string

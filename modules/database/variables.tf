@@ -13,6 +13,12 @@ variable "ingress_security_group_ids" {
   type        = list(string)
 }
 
+variable "rds_name" {
+  description = "The name of the database to create when the DB instance is created."
+  type        = string
+  default     = "gitlabhq_production"
+}
+
 variable "allocated_storage" {
   description = "Allocated storage in gibibytes"
   type        = number

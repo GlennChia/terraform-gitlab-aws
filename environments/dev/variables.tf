@@ -55,13 +55,19 @@ variable "force_destroy" {
   default     = true
 }
 
-variable "rds_username" {
-  description = "Username for the master DB user"
+variable "rds_name_gitlab" {
+  description = "The name of the database to create when the DB instance is created for GitLab instance"
+  type        = string
+  default     = "gitlabhq_production"
+}
+
+variable "rds_username_gitlab" {
+  description = "Username for the master DB user for GitLab instance"
   type        = string
 }
 
-variable "rds_password" {
-  description = "Password for the master DB user"
+variable "rds_password_gitlab" {
+  description = "Password for the master DB user for GitLab instance"
   type        = string
 }
 

@@ -70,8 +70,9 @@ module "database" {
   vpc_id                     = module.network.vpc_id
   subnet_ids                 = module.network.this_subnet_public_ids
   ingress_security_group_ids = [module.loadbalancer.security_group_id]
-  username                   = var.rds_username
-  password                   = var.rds_password
+  rds_name                   = var.rds_name_gitlab
+  username                   = var.rds_username_gitlab
+  password                   = var.rds_password_gitlab
   deletion_protection        = var.deletion_protection
   skip_final_snapshot        = var.skip_final_snapshot
 }
@@ -91,7 +92,9 @@ module "gitlab_image" {
   private_ip_gitlab                   = var.private_ip_gitlab
   rds_address                         = module.database.rds_address
   redis_address                       = module.redis.primary_address
-  rds_password                        = var.rds_password
+  rds_name                            = var.rds_name_gitlab
+  rds_username                        = var.rds_username_gitlab
+  rds_password                        = var.rds_password_gitlab
   dns_name                            = module.loadbalancer.dns_name
   region                              = var.region
   gitlab_artifacts_bucket_name        = var.gitlab_artifacts_bucket_name

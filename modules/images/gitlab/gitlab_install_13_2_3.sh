@@ -37,8 +37,8 @@ fi
 sed -i "s/# postgresql\['enable'\] = true/postgresql\['enable'\] = false/" gitlab.rb
 sed -i "s/# gitlab_rails\['db_adapter'\]/gitlab_rails\['db_adapter'\]/" gitlab.rb
 sed -i "s/# gitlab_rails\['db_encoding'\]/gitlab_rails\['db_encoding'\]/" gitlab.rb
-sed -i "s/# gitlab_rails\['db_database'\]/gitlab_rails\['db_database'\]/" gitlab.rb
-sed -i "s/# gitlab_rails\['db_username'\]/gitlab_rails\['db_username'\]/" gitlab.rb
+sed -i "s/# gitlab_rails\['db_database'\] = .*/gitlab_rails\['db_database'\] = \"${rds_name}\"/" gitlab.rb
+sed -i "s/# gitlab_rails\['db_username'\] = .*/gitlab_rails\['db_username'\] = \"${rds_username}\"/" gitlab.rb
 sed -i "s/# gitlab_rails\['db_password'\] = .*/gitlab_rails\['db_password'\] = \"${rds_password}\"/" gitlab.rb
 sed -i "s/# gitlab_rails\['db_host'\] = .*/gitlab_rails\['db_host'\] = \"${rds_address}\"/" gitlab.rb
 sed -i "s/# redis\['enable'\] = true/redis\['enable'\] = false/" gitlab.rb
