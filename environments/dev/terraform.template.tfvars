@@ -13,6 +13,7 @@ deletion_protection                 = false
 skip_final_snapshot                 = true
 gitlab_instance_type                = "c5.xlarge"
 gitlab_key_name                     = "someKey"
+load_balancer_bucket                = "gl-entry"
 gitlab_artifacts_bucket_name        = "gl-aws-artifacts"
 gitlab_external_diffs_bucket_name   = "gl-aws-external-diffs"
 gitlab_lfs_bucket_name              = "gl-aws-lfs-objects"

@@ -64,7 +64,7 @@
 data "aws_elb_service_account" "classicLB" {}
 
 resource "aws_s3_bucket" "loadbalancer_access_logs" {
-  bucket        = "gl-entry"
+  bucket        = var.load_balancer_bucket
   acl           = var.acl
   force_destroy = var.force_destroy
 
@@ -78,7 +78,7 @@ resource "aws_s3_bucket" "loadbalancer_access_logs" {
         "s3:PutObject"
       ],
       "Effect": "Allow",
-      "Resource": "arn:aws:s3:::gl-entry/AWSLogs/*",
+      "Resource": "arn:aws:s3:::${var.load_balancer_bucket}/AWSLogs/*",
       "Principal": {
         "AWS": [
           "${data.aws_elb_service_account.classicLB.arn}"

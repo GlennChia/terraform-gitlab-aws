@@ -41,9 +41,10 @@ module "bastion" {
 module "storage" {
   source = "../../modules/storage"
 
-  acl           = var.access_log_bucket_acl
-  force_destroy = var.force_destroy
-  vpce_id       = module.network.vpce_id
+  load_balancer_bucket = var.load_balancer_bucket
+  acl                  = var.access_log_bucket_acl
+  force_destroy        = var.force_destroy
+  vpce_id              = module.network.vpce_id
   gitlab_buckets = [
     var.gitlab_artifacts_bucket_name, var.gitlab_external_diffs_bucket_name,
     var.gitlab_lfs_bucket_name, var.gitlab_uploads_bucket_name,

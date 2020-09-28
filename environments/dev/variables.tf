@@ -37,6 +37,12 @@ variable "whitelist_ip" {
   type        = list(string)
 }
 
+variable "load_balancer_bucket" {
+  description = "Bucket for the load balancer"
+  type        = string
+  default     = "gl-entry"
+}
+
 variable "access_log_bucket_acl" {
   description = "The canned ACL to apply. Options are `private`, `public-read`, `public-read-write` among others"
   type        = string
