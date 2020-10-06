@@ -111,6 +111,19 @@ module "iam" {
   source = "../../modules/iam"
 }
 
+module "gitaly_cluster" {
+  source = "../../modules/gitaly_cluster"
+
+  vpc_id                     = module.network.vpc_id
+  subnet_ids                 = module.network.this_subnet_private_ids
+  ingress_security_group_ids = []
+  rds_name                   = var.rds_name_gitaly
+  rds_username               = var.rds_username_gitaly
+  rds_password               = var.rds_password_gitaly
+  deletion_protection        = var.deletion_protection
+  skip_final_snapshot        = var.skip_final_snapshot
+}
+
 module "gitaly" {
   source = "../../modules/gitaly"
 

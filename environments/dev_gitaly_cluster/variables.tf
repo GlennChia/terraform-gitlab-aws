@@ -152,6 +152,21 @@ variable "private_ip_gitlab" {
   description = "The private ip of the GitLab instance. Instance removed in HA"
   type        = string
 }
+variable "rds_name_gitaly" {
+  description = "The name of the database to create when the DB instance is created for Gitaly cluster"
+  type        = string
+  default     = "gitalyhq_production"
+}
+
+variable "rds_username_gitaly" {
+  description = "Username for the master DB user for Gitaly cluster"
+  type        = string
+}
+
+variable "rds_password_gitaly" {
+  description = "Password for the master DB user for Gitaly cluster"
+  type        = string
+}
 
 variable "gitaly_token" {
   description = "The token authenticate gRPC requests to Gitaly"
