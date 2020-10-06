@@ -74,13 +74,13 @@ resource "aws_security_group" "this" {
   }
 
   ingress {
-    description = "Allow ingress for HTTP, port 80 (TCP), thru the ELB"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = var.whitelist_ip
+    description     = "Allow ingress for HTTP, port 80 (TCP), thru the ELB"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    cidr_blocks     = var.whitelist_ip
     security_groups = var.http_ingress_security_group_ids
-    self        = true
+    self            = true
   }
 
   ingress {
