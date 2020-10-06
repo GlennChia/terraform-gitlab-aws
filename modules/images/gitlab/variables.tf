@@ -113,11 +113,6 @@ variable "instance_type" {
   default     = "c5.xlarge"
 }
 
-variable "security_group_ids" {
-  description = "The list security group ids attached to the GitLab instance"
-  type        = list(string)
-}
-
 variable "subnet_id" {
   description = "Private or public subnet id depending on requirements"
   type        = string
@@ -126,4 +121,30 @@ variable "subnet_id" {
 variable "gitlab_key_name" {
   description = "The key name of a key that has already been created that will be attached to the GitLab instance"
   type        = string
+}
+
+variable "vpc_id" {
+  description = "The id of the VPC"
+  type        = string
+}
+
+variable "whitelist_ip" {
+  description = "Whitelist of IPs that can reach the instance via HTTP or HTTPs"
+  type        = list(string)
+}
+
+variable "http_ingress_security_group_ids" {
+  description = "The ids of the security groups allowed to hit HTTP endpoint"
+  type        = list(string)
+}
+
+variable "prometheus_ingress_security_group_ids" {
+  description = "The ids of the security groups allowed to hit prometheus endpoint"
+  type        = list(string)
+  default     = []
+}
+
+variable "ssh_ingress_security_group_ids" {
+  description = "The ids of the security groups allowed to ssh"
+  type        = list(string)
 }

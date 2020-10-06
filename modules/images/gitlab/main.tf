@@ -180,7 +180,7 @@ resource "aws_instance" "this" {
   ami                    = data.aws_ami.this.id
   iam_instance_profile   = aws_iam_instance_profile.this.name
   instance_type          = var.instance_type
-  vpc_security_group_ids = var.security_group_ids
+  vpc_security_group_ids = [aws_security_group.this.id]
   subnet_id              = var.subnet_id
   private_ip             = var.private_ip_gitlab
   key_name               = var.gitlab_key_name
@@ -188,6 +188,59 @@ resource "aws_instance" "this" {
 
   tags = {
     Name = "Gitlab"
+  }
+}
+
+resource "aws_security_group" "this" {
+  name        = "gitlab-sec-group"
+  vpc_id      = var.vpc_id
+  description = "Security group for the gitlab instance"
+
+  ingress {
+    description = "Allow ingress for HTTPS, port 443 (TCP)"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = var.whitelist_ip
+  }
+
+  ingress {
+    description     = "Allow ingress for HTTP, port 80 (TCP)"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    cidr_blocks     = var.whitelist_ip
+    security_groups = var.http_ingress_security_group_ids
+    self            = true
+  }
+
+  ingress {
+    description     = "Allow ingress for Prometheus"
+    from_port       = 9090
+    to_port         = 9090
+    protocol        = "tcp"
+    cidr_blocks     = var.whitelist_ip
+    security_groups = var.prometheus_ingress_security_group_ids
+    self            = true
+  }
+
+  ingress {
+    description     = "Allow ingress for Git over SSH, port 22 (TCP)"
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = var.ssh_ingress_security_group_ids
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "gitlab-sec-group"
   }
 }
 

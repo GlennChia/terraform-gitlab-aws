@@ -61,7 +61,7 @@ module "loadbalancer" {
   elb_log_s3_bucket_id            = module.storage.elb_log_s3_bucket_id
   whitelist_ip                    = var.whitelist_ip
   bastion_security_group_id       = module.bastion.security_group_id
-  http_ingress_security_group_ids = [module.gitlab_runner.security_group_id, module.gitaly.security_group_id, module.eks.security_group_id]
+  http_ingress_security_group_ids = []
 }
 
 module "database" {
@@ -69,7 +69,7 @@ module "database" {
 
   vpc_id                     = module.network.vpc_id
   subnet_ids                 = module.network.this_subnet_public_ids
-  ingress_security_group_ids = [module.loadbalancer.security_group_id]
+  ingress_security_group_ids = [module.gitlab_image.security_group_id]
   rds_name                   = var.rds_name_gitlab
   username                   = var.rds_username_gitlab
   password                   = var.rds_password_gitlab
@@ -83,35 +83,39 @@ module "redis" {
   vpc_id                     = module.network.vpc_id
   availability_zones         = data.aws_availability_zones.available.names
   subnet_ids                 = module.network.this_subnet_public_ids
-  ingress_security_group_ids = [module.loadbalancer.security_group_id]
+  ingress_security_group_ids = [module.gitlab_image.security_group_id]
 }
 
 module "gitlab_image" {
   source = "../../modules/images/gitlab"
 
-  private_ip_gitlab                   = var.private_ip_gitlab
-  rds_address                         = module.database.rds_address
-  redis_address                       = module.redis.primary_address
-  rds_name                            = var.rds_name_gitlab
-  rds_username                        = var.rds_username_gitlab
-  rds_password                        = var.rds_password_gitlab
-  dns_name                            = module.loadbalancer.dns_name
-  region                              = var.region
-  gitlab_artifacts_bucket_name        = var.gitlab_artifacts_bucket_name
-  gitlab_lfs_bucket_name              = var.gitlab_lfs_bucket_name
-  gitlab_uploads_bucket_name          = var.gitlab_uploads_bucket_name
-  gitlab_packages_bucket_name         = var.gitlab_packages_bucket_name
-  gitlab_external_diffs_bucket_name   = var.gitlab_external_diffs_bucket_name
-  gitlab_dependency_proxy_bucket_name = var.gitlab_dependency_proxy_bucket_name
-  gitlab_terraform_state_bucket_name  = var.gitlab_terraform_state_bucket_name
-  gitaly_token                        = var.gitaly_token
-  secret_token                        = var.secret_token
-  private_ips_gitaly                  = var.private_ips_gitaly
-  security_group_ids                  = [module.loadbalancer.security_group_id]
-  visibility                          = var.visibility
-  subnet_id                           = module.network.this_subnet_public_ids[0]
-  gitlab_key_name                     = var.gitlab_key_name
-  grafana_password                    = var.grafana_password
+  private_ip_gitlab                     = var.private_ip_gitlab
+  rds_address                           = module.database.rds_address
+  redis_address                         = module.redis.primary_address
+  rds_name                              = var.rds_name_gitlab
+  rds_username                          = var.rds_username_gitlab
+  rds_password                          = var.rds_password_gitlab
+  dns_name                              = module.loadbalancer.dns_name
+  region                                = var.region
+  gitlab_artifacts_bucket_name          = var.gitlab_artifacts_bucket_name
+  gitlab_lfs_bucket_name                = var.gitlab_lfs_bucket_name
+  gitlab_uploads_bucket_name            = var.gitlab_uploads_bucket_name
+  gitlab_packages_bucket_name           = var.gitlab_packages_bucket_name
+  gitlab_external_diffs_bucket_name     = var.gitlab_external_diffs_bucket_name
+  gitlab_dependency_proxy_bucket_name   = var.gitlab_dependency_proxy_bucket_name
+  gitlab_terraform_state_bucket_name    = var.gitlab_terraform_state_bucket_name
+  gitaly_token                          = var.gitaly_token
+  secret_token                          = var.secret_token
+  private_ips_gitaly                    = var.private_ips_gitaly
+  vpc_id                                = module.network.vpc_id
+  whitelist_ip                          = var.whitelist_ip
+  ssh_ingress_security_group_ids        = [module.bastion.security_group_id]
+  prometheus_ingress_security_group_ids = [module.loadbalancer.security_group_id]
+  http_ingress_security_group_ids       = [module.gitlab_runner.security_group_id, module.gitaly.security_group_id, module.eks.security_group_id, module.loadbalancer.security_group_id]
+  visibility                            = var.visibility
+  subnet_id                             = module.network.this_subnet_public_ids[0]
+  gitlab_key_name                       = var.gitlab_key_name
+  grafana_password                      = var.grafana_password
 }
 
 module "iam" {
@@ -131,7 +135,7 @@ module "gitaly" {
   private_ip                       = var.private_ips_gitaly[0]
   key_name                         = var.gitaly_key_name
   iam_instance_profile             = module.iam.ssm_instance_profile
-  custom_ingress_security_group_id = module.loadbalancer.security_group_id
+  custom_ingress_security_group_id = module.gitlab_image.security_group_id
   bastion_security_group_id        = module.bastion.security_group_id
 }
 
@@ -149,6 +153,6 @@ module "eks" {
   source = "../../modules/eks"
 
   subnet_ids                = module.network.this_subnet_private_ids
-  ingress_security_group_id = module.loadbalancer.security_group_id
+  ingress_security_group_id = module.gitlab_image.security_group_id
   vpc_id                    = module.network.vpc_id
 }
