@@ -169,7 +169,7 @@ variable "rds_password_gitaly" {
 }
 
 variable "gitaly_token" {
-  description = "The token authenticate gRPC requests to Gitaly"
+  description = "The token authenticate gRPC requests to Gitaly. For praefect, it is used in praefect_internal_token"
   type        = string
 }
 
@@ -191,4 +191,30 @@ variable "gitaly_key_name" {
 variable "grafana_password" {
   description = "Password to access Grafana"
   type        = string
+}
+
+variable "praefect_sql_password" {
+  description = "Password for the praefect db user"
+  type        = string
+}
+
+variable "praefect_external_token" {
+  description = "Token needed by clients outside the cluster (like GitLab Shell) to communicate with the Praefect cluster"
+  type        = string
+}
+
+variable "private_ips_praefect" {
+  description = "Assigned private ips to praefect instances "
+  type        = list(string)
+}
+
+variable "praefect_key_name" {
+  description = "The key name of a key that has already been created that will be attached to the praefect instance"
+  type        = string
+}
+
+variable "praefect_instance_type" {
+  description = "Instance type for the praefect instance"
+  type        = string
+  default     = "c5.xlarge"
 }

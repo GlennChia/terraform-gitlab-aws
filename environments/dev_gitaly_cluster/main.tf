@@ -114,14 +114,24 @@ module "iam" {
 module "gitaly_cluster" {
   source = "../../modules/gitaly_cluster"
 
-  vpc_id                     = module.network.vpc_id
-  subnet_ids                 = module.network.this_subnet_private_ids
-  ingress_security_group_ids = []
-  rds_name                   = var.rds_name_gitaly
-  rds_username               = var.rds_username_gitaly
-  rds_password               = var.rds_password_gitaly
-  deletion_protection        = var.deletion_protection
-  skip_final_snapshot        = var.skip_final_snapshot
+  vpc_id                               = module.network.vpc_id
+  subnet_ids                           = module.network.this_subnet_private_ids
+  ingress_security_group_ids           = []
+  rds_name                             = var.rds_name_gitaly
+  rds_username                         = var.rds_username_gitaly
+  rds_password                         = var.rds_password_gitaly
+  deletion_protection                  = var.deletion_protection
+  skip_final_snapshot                  = var.skip_final_snapshot
+  praefect_sql_password                = var.praefect_sql_password
+  praefect_external_token              = var.praefect_external_token
+  praefect_internal_token              = var.gitaly_token
+  private_ips_gitaly                   = var.private_ips_gitaly
+  private_ips_praefect                 = var.private_ips_praefect
+  iam_instance_profile                 = module.iam.ssm_instance_profile
+  praefect_key_name                    = var.praefect_key_name
+  custom_ingress_security_group_id     = module.gitlab_image.security_group_id
+  ssh_ingress_security_group_id        = module.bastion.security_group_id
+  prometheus_ingress_security_group_id = module.gitlab_image.security_group_id
 }
 
 module "gitaly" {
