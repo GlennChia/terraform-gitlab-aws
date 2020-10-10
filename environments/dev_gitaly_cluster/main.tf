@@ -132,6 +132,11 @@ module "gitaly_cluster" {
   custom_ingress_security_group_id     = module.gitlab_image.security_group_id
   ssh_ingress_security_group_id        = module.bastion.security_group_id
   prometheus_ingress_security_group_id = module.gitlab_image.security_group_id
+  secret_token                         = var.secret_token
+  visibility                           = var.visibility
+  lb_dns_name                          = ""
+  instance_dns_name                    = module.gitlab_image.public_dns
+  gitaly_key_name                      = var.gitaly_key_name
 }
 
 module "gitaly" {
@@ -144,7 +149,7 @@ module "gitaly" {
   instance_dns_name                = module.gitlab_image.public_dns
   vpc_id                           = module.network.vpc_id
   subnet_id                        = module.network.this_subnet_private_ids[0]
-  private_ip                       = var.private_ips_gitaly[0]
+  private_ip                       = "10.0.3.6" # var.private_ips_gitaly[0]
   key_name                         = var.gitaly_key_name
   iam_instance_profile             = module.iam.ssm_instance_profile
   custom_ingress_security_group_id = module.gitlab_image.security_group_id
