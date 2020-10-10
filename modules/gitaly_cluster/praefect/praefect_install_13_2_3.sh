@@ -56,7 +56,7 @@ sed -i "s/# praefect\['database_user'\] = .*/praefect\['database_user'\] = 'prae
 sed -i "s/# praefect\['database_password'\] = .*/praefect\['database_password'\] = \"${praefect_sql_password}\"/" gitlab.rb
 sed -i "s/# praefect\['database_dbname'\] = .*/praefect\['database_dbname'\] = 'praefect_production'/" gitlab.rb
 # Configure the Praefect cluster to connect to each Gitaly nod
-perl -i -pe "BEGIN{undef $/;} s/# praefect\['virtual_storages'] = \{.*?# \}/praefect['virtual_storages'] = {\n  \"default\" => {\n    \"gitaly-1\" => {\n      'address' => 'tcp:\/\/${gitaly_address1}:8075',\n      'token' => '${praefect_internal_token}'\n    },\n    \"gitaly-2\" => {\n      'address' => 'tcp:\/\/${gitaly_address2}:8075',\n      'token' => '${praefect_internal_token}'\n    },\n    \"gitaly-3\" => {\n      'address' => 'tcp:\/\/${gitaly_address3}:8075',\n      'token' => '${praefect_internal_token}'\n    }\n  }\n}/smg" gitlab.rb
+perl -i -pe "BEGIN{undef $/;} s/# praefect\['virtual_storages'] = \{.*?# \}/praefect['virtual_storages'] = {\n  \"default\" => {\n    \"gitaly-1\" => {\n      'address' => 'tcp:\/\/${gitaly_address1}:8075',\n      'token' => '${praefect_internal_token}',\n      'primary' => true\n    },\n    \"gitaly-2\" => {\n      'address' => 'tcp:\/\/${gitaly_address2}:8075',\n      'token' => '${praefect_internal_token}'\n    },\n    \"gitaly-3\" => {\n      'address' => 'tcp:\/\/${gitaly_address3}:8075',\n      'token' => '${praefect_internal_token}'\n    }\n  }\n}/smg" gitlab.rb
 
 sudo gitlab-ctl reconfigure
 sudo gitlab-ctl restart praefect
