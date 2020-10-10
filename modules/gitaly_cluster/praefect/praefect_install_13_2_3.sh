@@ -48,7 +48,7 @@ sed -i "s/# gitlab_rails\['auto_migrate'\] = true/gitlab_rails\['auto_migrate'\]
 sed -i "s/# praefect\['listen_addr'\] = .*/praefect\['listen_addr'\] = '0.0.0.0:2305'/" gitlab.rb
 sed -i "s/# praefect\['prometheus_listen_addr'\] = .*/praefect\['prometheus_listen_addr'\] = '0.0.0.0:9652'/" gitlab.rb
 # Configure a strong auth_token for Praefect. This is an external token
-sed -i "s/# praefect\['auth_token'\] = .*/praefect\['database_host'\] = \"${praefect_external_token}\"/" gitlab.rb
+sed -i "s/# praefect\['auth_token'\] = .*/praefect\['auth_token'\] = \"${praefect_external_token}\"/" gitlab.rb
 # Configure the Praefect cluster to connect to each Gitaly node in the cluster
 sed -i "s/# praefect\['database_host'\] = .*/praefect\['database_host'\] = \"${rds_address}\"/" gitlab.rb
 sed -i "s/# praefect\['database_port'\] = .*/praefect\['database_port'\] = 5432/" gitlab.rb
