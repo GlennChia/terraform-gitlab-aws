@@ -115,6 +115,7 @@ module "gitaly_cluster" {
   source = "../../modules/gitaly_cluster"
 
   vpc_id                               = module.network.vpc_id
+  vpc_cidr                             = var.vpc_cidr
   subnet_ids                           = module.network.this_subnet_private_ids
   ingress_security_group_ids           = []
   rds_name                             = var.rds_name_gitaly

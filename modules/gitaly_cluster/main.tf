@@ -23,6 +23,7 @@ module "praefect" {
   source = "./praefect"
 
   vpc_id                               = var.vpc_id
+  vpc_cidr                             = var.vpc_cidr
   subnet_ids                           = var.subnet_ids
   rds_address                          = module.database.rds_address
   rds_name                             = var.rds_name
@@ -37,7 +38,6 @@ module "praefect" {
   praefect_key_name                    = var.praefect_key_name
   ssh_ingress_security_group_id        = var.ssh_ingress_security_group_id
   custom_ingress_security_group_id     = var.custom_ingress_security_group_id
-  gitaly_ingress_security_group_id     = ""
   prometheus_ingress_security_group_id = var.prometheus_ingress_security_group_id
 }
 

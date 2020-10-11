@@ -8,6 +8,12 @@ variable "vpc_id" {
   type        = string
 }
 
+variable "vpc_cidr" {
+  description = "VPC Cidr Range used to allow Praefect NLB healthcheck to reach instances"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
 variable "ingress_security_group_ids" {
   description = "The list security group id of the security group that is allowed ingress"
   type        = list(string)

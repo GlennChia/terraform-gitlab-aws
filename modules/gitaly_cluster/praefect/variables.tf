@@ -49,6 +49,12 @@ variable "vpc_id" {
   type        = string
 }
 
+variable "vpc_cidr" {
+  description = "VPC Cidr Range used to allow Praefect NLB healthcheck to reach instances"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
 variable "subnet_ids" {
   description = "Private subnet ids for clusters"
   type        = list(string)
@@ -78,12 +84,6 @@ variable "ssh_ingress_security_group_id" {
 
 variable "custom_ingress_security_group_id" {
   description = "The id of the security group allowed to communicate with Praefect"
-  type        = string
-  default     = ""
-}
-
-variable "gitaly_ingress_security_group_id" {
-  description = "Allow custom ingress for praefect to communicate with Gitaly"
   type        = string
   default     = ""
 }
