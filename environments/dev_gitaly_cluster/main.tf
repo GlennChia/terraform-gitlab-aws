@@ -95,12 +95,16 @@ module "gitlab_image" {
   gitlab_terraform_state_bucket_name    = var.gitlab_terraform_state_bucket_name
   gitaly_token                          = var.gitaly_token
   secret_token                          = var.secret_token
+  gitaly_config                         = var.gitaly_config
   private_ips_gitaly                    = var.private_ips_gitaly
+  private_ips_praefect                  = var.private_ips_praefect
+  praefect_external_token               = var.praefect_external_token
+  prafect_loadbalancer_dns_name         = module.gitaly_cluster.prafect_loadbalancer_dns_name
   vpc_id                                = module.network.vpc_id
   whitelist_ip                          = var.whitelist_ip
   ssh_ingress_security_group_ids        = [module.bastion.security_group_id]
   prometheus_ingress_security_group_ids = []
-  http_ingress_security_group_ids       = [module.gitaly.security_group_id, module.eks.security_group_id]
+  http_ingress_security_group_ids       = [module.eks.security_group_id, module.gitaly_cluster.gitaly_security_group_id]
   visibility                            = var.visibility
   subnet_id                             = module.network.this_subnet_public_ids[0]
   gitlab_key_name                       = var.gitlab_key_name
@@ -138,23 +142,6 @@ module "gitaly_cluster" {
   lb_dns_name                          = ""
   instance_dns_name                    = module.gitlab_image.public_dns
   gitaly_key_name                      = var.gitaly_key_name
-}
-
-module "gitaly" {
-  source = "../../modules/gitaly"
-
-  gitaly_token                     = var.gitaly_token
-  secret_token                     = var.secret_token
-  visibility                       = var.visibility
-  lb_dns_name                      = ""
-  instance_dns_name                = module.gitlab_image.public_dns
-  vpc_id                           = module.network.vpc_id
-  subnet_id                        = module.network.this_subnet_private_ids[0]
-  private_ip                       = "10.0.3.6" # var.private_ips_gitaly[0]
-  key_name                         = var.gitaly_key_name
-  iam_instance_profile             = module.iam.ssm_instance_profile
-  custom_ingress_security_group_id = module.gitlab_image.security_group_id
-  bastion_security_group_id        = module.bastion.security_group_id
 }
 
 module "eks" {

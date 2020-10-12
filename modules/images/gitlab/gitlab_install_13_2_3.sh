@@ -15,7 +15,6 @@ curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.de
 sudo apt-get install gitlab-ee=13.2.3-ee.0
 cd /etc/gitlab
 sed -i "s/# letsencrypt\['enable'\] = nil/letsencrypt\['enable'\] = false/" gitlab.rb
-sudo gitlab-ctl reconfigure
 
 # Install the pg_trgm extension for PostgreSQL
 sudo /opt/gitlab/embedded/bin/psql -U gitlab -h ${rds_address} -d gitlabhq_production
@@ -44,7 +43,6 @@ sed -i "s/# gitlab_rails\['db_host'\] = .*/gitlab_rails\['db_host'\] = \"${rds_a
 sed -i "s/# redis\['enable'\] = true/redis\['enable'\] = false/" gitlab.rb
 sed -i "s/# gitlab_rails\['redis_host'\] = .*/gitlab_rails\['redis_host'\] = \"${redis_address}\"/" gitlab.rb
 sed -i "s/# gitlab_rails\['redis_port'\]/gitlab_rails\['redis_port'\]/" gitlab.rb
-sudo gitlab-ctl reconfigure
 
 # Configure S3 integration
 sed -i "s/gitlab_rails\['object_store'\]\['enabled'\] = false/gitlab_rails\['object_store'\]\['enabled'\] = true/" gitlab.rb
@@ -59,10 +57,17 @@ sed -i "s/gitlab_rails\['object_store'\]\['objects'\]\['dependency_proxy'\]\['bu
 sed -i "s/gitlab_rails\['object_store'\]\['objects'\]\['terraform_state'\]\['bucket'\] = nil/gitlab_rails\['object_store'\]\['objects'\]\['terraform_state'\]\['bucket'\] = '${terraform_state_bucket}'/" gitlab.rb
 
 # Configure Gitaly client
-sed -i "s/# gitlab_rails\['gitaly_token'\] = .*/gitlab_rails\['gitaly_token'\] = \"${gitaly_token}\"/" gitlab.rb
+if [[ ${gitaly_config} = "instance" ]]
+then
+  sed -i "s/# gitlab_rails\['gitaly_token'\] = .*/gitlab_rails\['gitaly_token'\] = \"${gitaly_token}\"/" gitlab.rb
+  perl -i -pe "BEGIN{undef $/;} s/# git_data_dirs\(\{.*?# \}\)/git_data_dirs({\n  \"default\" => { \"gitaly_address\" => \"tcp:\/\/${gitaly_address1}:8075\" },\n  \"storage1\" => { \"gitaly_address\" => \"tcp:\/\/${gitaly_address1}:8075\" },\n})/smg" gitlab.rb
+elif [[ ${gitaly_config} = "clustered" ]]
+then
+  sed -i "s/# gitaly\['enable'\] = true/gitaly\['enable'\] = false/" gitlab.rb
+  perl -i -pe "BEGIN{undef $/;} s/# git_data_dirs\(\{.*?# \}\)/git_data_dirs({\n  \"default\" => {\n    \"gitaly_address\" => \"tcp:\/\/${prafect_loadbalancer_dns_name}:2305\",\n    \"gitaly_token\" => \"${praefect_external_token}\"\n  }\n})/smg" gitlab.rb
+  perl -i -pe "BEGIN{undef $/;} s/# prometheus\['scrape_configs'] = \[.*?# ]/prometheus['scrape_configs'] = [\n  {\n    'job_name' => 'praefect',\n    'static_configs' => [\n      'targets' => [\n        '${praefect_address1}:9652',\n        '${praefect_address2}:9652',\n        '${praefect_address3}:9652'\n      ]\n    ]\n  },\n  {\n    'job_name' => 'praefect-gitaly',\n    'static_configs' => [\n      'targets' => [\n        '${gitaly_address1}:9236',\n        '${gitaly_address2}:9236',\n        '${gitaly_address3}:9236'\n      ]\n    ]\n  }\n]/smg" gitlab.rb
+fi
 echo "gitlab_shell['secret_token'] = \"${secret_token}\"" >> gitlab.rb
-# The step below has to be done manually. Replace gitaly_internal_ip after the gitaly instance is up
-perl -i -pe "BEGIN{undef $/;} s/# git_data_dirs\(\{.*?# \}\)/git_data_dirs({\n  \"default\" => { \"gitaly_address\" => \"tcp:\/\/${gitaly_address1}:8075\" },\n  \"storage1\" => { \"gitaly_address\" => \"tcp:\/\/${gitaly_address1}:8075\" },\n})/smg" gitlab.rb
 
 # Configure Prometheus 
 sed -i "s/# prometheus\['enable'\] = .*/prometheus\['enable'\] = true/" gitlab.rb

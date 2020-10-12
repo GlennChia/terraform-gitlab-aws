@@ -178,6 +178,12 @@ variable "secret_token" {
   type        = string
 }
 
+variable "gitaly_config" {
+  description = "The configuration for gitaly. Can be clustered or a single instance"
+  type        = string
+  default     = "clustered"
+}
+
 variable "private_ips_gitaly" {
   description = "Assigned private ips to gitaly instances"
   type        = list(string)

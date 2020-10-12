@@ -102,6 +102,30 @@ variable "private_ips_gitaly" {
   type        = list(string)
 }
 
+variable "gitaly_config" {
+  description = "The configuration for gitaly. Can be clustered or a single instance"
+  type        = string
+  default     = "clustered"
+}
+
+variable "private_ips_praefect" {
+  description = "Assigned private ips to praefect instances "
+  type        = list(string)
+  default     = ["", "", ""]
+}
+
+variable "praefect_external_token" {
+  description = "Token needed by clients outside the cluster (like GitLab Shell) to communicate with the Praefect cluster"
+  type        = string
+  default     = ""
+}
+
+variable "prafect_loadbalancer_dns_name" {
+  description = "The dns name associated with the Praefect loadbalancer"
+  type        = string
+  default     = ""
+}
+
 variable "grafana_password" {
   description = "Password to access Grafana"
   type        = string

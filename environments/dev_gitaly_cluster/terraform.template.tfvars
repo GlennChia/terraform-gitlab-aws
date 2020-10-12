@@ -30,6 +30,7 @@ rds_username_gitaly                 = "rdsusername"
 rds_password_gitaly                 = "rdspassword"
 gitaly_token                        = "someGitalyToken"
 secret_token                        = "someSecretToken"
+gitaly_config                       = "clustered" # "instance"
 private_ips_gitaly                  = ["10.0.3.4", "10.0.4.4", "10.0.5.4"]
 gitaly_key_name                     = "someKey"
 private_ips_praefect                = ["10.0.3.5", "10.0.4.5", "10.0.5.5"]

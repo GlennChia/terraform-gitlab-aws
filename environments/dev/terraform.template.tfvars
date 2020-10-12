@@ -27,6 +27,7 @@ visibility                          = "private"
 private_ip_gitlab                   = "10.0.0.4"
 gitaly_token                        = "someGitalyToken"
 secret_token                        = "someSecretToken"
+gitaly_config                       = "instance" # "clustered"
 private_ips_gitaly                  = ["10.0.3.4", "10.0.3.5", "10.0.3.6"]
 gitaly_key_name                     = "someKey"
 grafana_password                    = "somePassword"

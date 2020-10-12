@@ -154,25 +154,33 @@ data "template_file" "this" {
   template = "${file("../../modules/images/gitlab/gitlab_install_13_2_3.sh")}"
 
   vars = {
-    rds_address             = var.rds_address,
-    redis_address           = var.redis_address,
-    rds_name                = var.rds_name,
-    rds_username            = var.rds_username,
-    rds_password            = var.rds_password,
-    dns_name                = var.dns_name,
-    visibility              = var.visibility
-    region                  = var.region,
-    artifacts_bucket        = var.gitlab_artifacts_bucket_name,
-    lfs_objects_bucket      = var.gitlab_lfs_bucket_name,
-    uploads_bucket          = var.gitlab_uploads_bucket_name,
-    packages_bucket         = var.gitlab_packages_bucket_name,
-    external_diffs_bucket   = var.gitlab_external_diffs_bucket_name,
-    dependency_proxy_bucket = var.gitlab_dependency_proxy_bucket_name,
-    terraform_state_bucket  = var.gitlab_terraform_state_bucket_name,
-    gitaly_address1         = var.private_ips_gitaly[0]
-    gitaly_token            = var.gitaly_token,
-    secret_token            = var.secret_token
-    grafana_password        = var.grafana_password
+    rds_address                   = var.rds_address,
+    redis_address                 = var.redis_address,
+    rds_name                      = var.rds_name,
+    rds_username                  = var.rds_username,
+    rds_password                  = var.rds_password,
+    dns_name                      = var.dns_name,
+    visibility                    = var.visibility
+    region                        = var.region,
+    artifacts_bucket              = var.gitlab_artifacts_bucket_name,
+    lfs_objects_bucket            = var.gitlab_lfs_bucket_name,
+    uploads_bucket                = var.gitlab_uploads_bucket_name,
+    packages_bucket               = var.gitlab_packages_bucket_name,
+    external_diffs_bucket         = var.gitlab_external_diffs_bucket_name,
+    dependency_proxy_bucket       = var.gitlab_dependency_proxy_bucket_name,
+    terraform_state_bucket        = var.gitlab_terraform_state_bucket_name,
+    gitaly_config                 = var.gitaly_config
+    gitaly_address1               = var.private_ips_gitaly[0],
+    gitaly_address2               = var.private_ips_gitaly[1],
+    gitaly_address3               = var.private_ips_gitaly[2],
+    praefect_address1             = var.private_ips_praefect[0],
+    praefect_address2             = var.private_ips_praefect[1],
+    praefect_address3             = var.private_ips_praefect[2],
+    gitaly_token                  = var.gitaly_token,
+    secret_token                  = var.secret_token
+    praefect_external_token       = var.praefect_external_token
+    prafect_loadbalancer_dns_name = var.prafect_loadbalancer_dns_name
+    grafana_password              = var.grafana_password
   }
 }
 
