@@ -12,3 +12,8 @@ output "eks_endpoint" {
   description = "The endpoint for your Kubernetes API server"
   value       = module.eks.endpoint
 }
+
+output "gitlab_loadbalancer_dns_name" {
+  description = "The endpoint of the GitLab load balancer"
+  value       = module.loadbalancer.dns_name
+}

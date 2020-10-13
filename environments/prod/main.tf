@@ -53,6 +53,17 @@ module "storage" {
   ]
 }
 
+module "loadbalancer" {
+  source = "../../modules/loadbalancer"
+
+  vpc_id                          = module.network.vpc_id
+  subnet_ids                      = module.network.this_subnet_public_ids
+  elb_log_s3_bucket_id            = module.storage.elb_log_s3_bucket_id
+  whitelist_ip                    = var.whitelist_ip
+  bastion_security_group_id       = module.bastion.security_group_id
+  http_ingress_security_group_ids = [module.eks.security_group_id, module.gitaly_cluster.gitaly_security_group_id]
+}
+
 module "database" {
   source = "../../modules/database"
 
@@ -84,7 +95,7 @@ module "gitlab_image" {
   rds_name                              = var.rds_name_gitlab
   rds_username                          = var.rds_username_gitlab
   rds_password                          = var.rds_password_gitlab
-  dns_name                              = ""
+  dns_name                              = module.loadbalancer.dns_name
   region                                = var.region
   gitlab_artifacts_bucket_name          = var.gitlab_artifacts_bucket_name
   gitlab_lfs_bucket_name                = var.gitlab_lfs_bucket_name
@@ -104,7 +115,7 @@ module "gitlab_image" {
   whitelist_ip                          = var.whitelist_ip
   ssh_ingress_security_group_ids        = [module.bastion.security_group_id]
   prometheus_ingress_security_group_ids = []
-  http_ingress_security_group_ids       = [module.eks.security_group_id, module.gitaly_cluster.gitaly_security_group_id]
+  http_ingress_security_group_ids       = [module.eks.security_group_id, module.gitaly_cluster.gitaly_security_group_id, module.loadbalancer.security_group_id]
   visibility                            = var.visibility
   subnet_id                             = module.network.this_subnet_public_ids[0]
   gitlab_key_name                       = var.gitlab_key_name
@@ -139,7 +150,7 @@ module "gitaly_cluster" {
   prometheus_ingress_security_group_id = module.gitlab_image.security_group_id
   secret_token                         = var.secret_token
   visibility                           = var.visibility
-  lb_dns_name                          = ""
+  lb_dns_name                          = module.loadbalancer.dns_name
   instance_dns_name                    = module.gitlab_image.public_dns
   gitaly_key_name                      = var.gitaly_key_name
 }

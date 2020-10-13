@@ -1,7 +1,7 @@
 /**
 * # Loadbalancer module
 *
-* Classic Load Balancer
+* Application Load Balancer
 *
 * ## Issues and fixes
 *
@@ -10,55 +10,66 @@
 * Fix: Temporarily comment out the listener for HTTPs
 */
 
-resource "aws_elb" "classic" {
+resource "aws_lb" "this" {
   name            = "gitlab-loadbalancer"
+  internal        = false
   subnets         = var.subnet_ids
   security_groups = [aws_security_group.this.id]
+  idle_timeout    = var.idle_timeout
 
   access_logs {
-    bucket   = var.elb_log_s3_bucket_id
-    interval = 60
+    bucket  = var.elb_log_s3_bucket_id
+    enabled = true
   }
-
-  listener {
-    instance_port     = 22
-    instance_protocol = "tcp"
-    lb_port           = 22
-    lb_protocol       = "tcp"
-  }
-
-  listener {
-    instance_port     = 80
-    instance_protocol = "http"
-    lb_port           = 80
-    lb_protocol       = "http"
-  }
-
-  # listener {
-  #   instance_port      = 80
-  #   instance_protocol  = "http"
-  #   lb_port            = 443
-  #   lb_protocol        = "https"
-  #   ssl_certificate_id = var.aws_acm_certificate_id
-  # }
-
-  health_check {
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 5
-    target              = "HTTP:80/explore"
-    interval            = 30
-  }
-
-  cross_zone_load_balancing   = var.cross_zone_load_balancing
-  idle_timeout                = var.idle_timeout
-  connection_draining         = var.connection_draining
-  connection_draining_timeout = var.connection_draining_timeout
 
   tags = {
     Name = "gitlab-loadbalancer"
   }
 }
+
+resource "aws_lb_target_group" "this" {
+  name     = "gitlab-lb-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+
+  health_check {
+    enabled             = true
+    interval            = 30
+    path                = "/explore"
+    port                = "80"
+    protocol            = "HTTP"
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+  }
+}
+
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.this.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.this.arn
+  }
+}
+
+# resource "aws_lb_listener" "https" {
+#   load_balancer_arn = aws_lb.this.arn
+#   port              = "80"
+#   protocol          = "HTTP"
+
+#   default_action {
+#     type = "redirect"
+
+#     redirect {
+#       port        = "443"
+#       protocol    = "HTTPS"
+#       status_code = "HTTP_301"
+#     }
+#   }
+# }
 
 resource "aws_security_group" "this" {
   name        = "gitlab-loadbalancer-sec-group"

@@ -5,5 +5,5 @@ output "security_group_id" {
 
 output "dns_name" {
   description = "The endpoint of the load balancer"
-  value       = aws_elb.classic.dns_name
+  value       = aws_lb.this.dns_name
 }
