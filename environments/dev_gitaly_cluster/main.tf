@@ -57,7 +57,7 @@ module "database" {
   source = "../../modules/database"
 
   vpc_id                     = module.network.vpc_id
-  subnet_ids                 = module.network.this_subnet_public_ids
+  subnet_ids                 = module.network.this_subnet_private_ids
   ingress_security_group_ids = [module.gitlab_image.security_group_id]
   rds_name                   = var.rds_name_gitlab
   username                   = var.rds_username_gitlab
@@ -71,7 +71,7 @@ module "redis" {
 
   vpc_id                     = module.network.vpc_id
   availability_zones         = data.aws_availability_zones.available.names
-  subnet_ids                 = module.network.this_subnet_public_ids
+  subnet_ids                 = module.network.this_subnet_private_ids
   ingress_security_group_ids = [module.gitlab_image.security_group_id]
 }
 
