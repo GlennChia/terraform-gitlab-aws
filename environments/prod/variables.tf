@@ -224,3 +224,15 @@ variable "praefect_instance_type" {
   type        = string
   default     = "c5.xlarge"
 }
+
+variable "launch_configuration_name_prefix" {
+  description = "Creates a unique name beginning with the specified prefix."
+  type        = string
+  default     = "gitlab-ha-launch-config"
+}
+
+variable "autoscaling_group_name" {
+  description = "The name of the auto scaling group"
+  type        = string
+  default     = "gitlab-auto-scaling-group"
+}

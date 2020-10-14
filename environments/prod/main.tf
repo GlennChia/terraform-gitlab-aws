@@ -64,6 +64,19 @@ module "loadbalancer" {
   http_ingress_security_group_ids = [module.eks.security_group_id, module.gitaly_cluster.gitaly_security_group_id]
 }
 
+module "autoscaling" {
+  source = "../../modules/autoscaling"
+
+  iam_instance_profile             = module.gitlab_image.iam_instance_profile
+  image_id                         = module.gitlab_image.image_id
+  instance_type                    = var.gitlab_instance_type
+  launch_configuration_name_prefix = var.launch_configuration_name_prefix
+  security_groups                  = [module.gitlab_image.security_group_id]
+  subnet_ids                       = module.network.this_subnet_private_ids
+  autoscaling_group_name           = var.autoscaling_group_name
+  target_group_arns                = [module.loadbalancer.target_group_arn]
+}
+
 module "database" {
   source = "../../modules/database"
 
