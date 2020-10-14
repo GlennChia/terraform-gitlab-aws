@@ -252,15 +252,15 @@ resource "aws_security_group" "this" {
   }
 }
 
-# resource "random_id" "this" {
-#   keepers = {
-#     uuid = "${uuid()}"
-#   }
-#   byte_length = 8
+resource "random_id" "this" {
+  keepers = {
+    uuid = "${uuid()}"
+  }
 
-# }
+  byte_length = 8
+}
 
-# resource "aws_ami_from_instance" "this" {
-#   name               = "GitLab-Source ${random_id.this.hex}"
-#   source_instance_id = aws_instance.this.id
-# }
+resource "aws_ami_from_instance" "this" {
+  name               = "GitLab-source-${random_id.this.hex}"
+  source_instance_id = aws_instance.this.id
+}
