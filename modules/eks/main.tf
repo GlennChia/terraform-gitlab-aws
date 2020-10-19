@@ -28,6 +28,20 @@
 * UPDATE ci_runners SET token = null, token_encrypted = null;
 * ```
 *
+* <b>Issue 3: When trying to launch nodegroup for a private EKS cluster, the nodegroups error out as "unhealthy" although the instance is up</b>
+*
+* Fix: Private EKS requires certain VPC endpoints for the control plane to communicate with the node groups. The list of VPC Endpoints can be found at [Private clusters](https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html) and is as follows:
+*
+* * com.amazonaws.<region>.ec2
+* * com.amazonaws.<region>.ecr.api
+* * com.amazonaws.<region>.ecr.dkr
+* * com.amazonaws.<region>.s3 - For pulling container images
+* * com.amazonaws.<region>.logs - For CloudWatch Logs
+* * com.amazonaws.<region>.sts - If using AWS Fargate or IAM roles for service accounts
+* * com.amazonaws.<region>.elasticloadbalancing - If using Application Load Balancers
+* * com.amazonaws.<region>.autoscaling - If using Cluster Autoscaler
+* * com.amazonaws.<region>.appmesh-envoy-management - If using App Mesh
+*
 * ## Additional details
 *
 * <b>Detail 1: Creating the Amazon EKS cluster role</b>
