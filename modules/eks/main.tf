@@ -42,6 +42,17 @@
 * * com.amazonaws.<region>.autoscaling - If using Cluster Autoscaler
 * * com.amazonaws.<region>.appmesh-envoy-management - If using App Mesh
 *
+* <b>Issue 4: GitLab console -> Admin area -> Register private EKS -> Endpoint error</b>
+*
+* Error on admin page: `API URI .... is blocked. Requests to the local network are not allowed`
+*
+* Fix: Admin area -> Settings -> Network -> Outbound Requests -> Allow requests to the local network from web hooks and services -> Add local IP address and domain names. Once done, try to register EKS again
+*
+* Useful links
+*
+* * [GitLab issues which had the fix](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/57948)
+* * [Webhooks and insecure internal web services](https://docs.gitlab.com/ee/security/webhooks.html#allowlist-for-local-requests)
+*
 * ## Additional details
 *
 * <b>Detail 1: Creating the Amazon EKS cluster role</b>
