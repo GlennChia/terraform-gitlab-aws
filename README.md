@@ -81,3 +81,102 @@ Example
 ```bash
 token_name=$(kubectl get secrets | awk 'NR==2{print $1}')
 ```
+
+# 5. Install GitLab runners using EKS via helm
+
+Make sure to have `kubectl` and `helm` installed
+
+- For Windows
+
+  1. Kubectl: [Install kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/). Download the executable and add it to the path
+
+  2. Helm: [Install Helm](https://helm.sh/docs/intro/install/)
+
+     ```bash
+     choco install kubernetes-helm
+     ```
+
+Configure according to: [GitLab Runner Helm Chart](https://docs.gitlab.com/runner/install/kubernetes.html)
+
+- Clone the [gitlab-runner repo](https://gitlab.com/gitlab-org/charts/gitlab-runner/-/tree/master)
+- Follow the GitLab documents for configuring values.yaml. Note: I had some issues with a custom service account. Hence, I enabled RBAC and let EKS handle the service account
+
+To pull a runner image from ECR
+
+- Download the Gitlab runner alpine image from [gitlab/gitlab-runner](https://hub.docker.com/r/gitlab/gitlab-runner/tags). Note: This must be alpine to avoid the error of `PANIC: mkdir /nonexistent: permission denied` after the `helm install` as elaborated below
+
+  ```bash
+  docker pull gitlab/gitlab-runner:alpine
+  ```
+
+- Then push the runner image to ECR. Replace <image_id> (Get this using `docker image ls`), <aws_account_id>, <ecr_repo_name>
+
+  ```bash
+  # Run with sudo privileges
+  /usr/local/bin/aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.ap-southeast-1.amazonaws.com
+  # Tag the image
+  docker tag <image_id> <aws_account_id>.dkr.ecr.ap-southeast-1.amazonaws.com/<ecr_repo_name>
+  # Push to ECR
+  docker push <aws_account_id>.dkr.ecr.ap-southeast-1.amazonaws.com/<ecr_repo_name>
+  ```
+
+Helm and kubectl commands to install
+
+```bash
+helm repo add gitlab https://charts.gitlab.io
+
+# Helm install based on values.yaml
+helm install --namespace gitlab-managed-apps gitlab-runner -f ./values.yaml gitlab/gitlab-runner
+# ============
+# Exmple Output
+# NAME: gitlab-runner
+# LAST DEPLOYED: Wed Oct 21 10:55:19 2020
+# NAMESPACE: gitlab-managed-apps
+# STATUS: deployed
+# REVISION: 1
+# TEST SUITE: None
+# NOTES:
+# Your GitLab Runner should now be registered against the GitLab instance reachable at: "http://<loadbalancer_dns_name>.ap-southeast-1.elb.amazonaws.com/"
+# ============
+
+# View the status of the pods
+kubectl get pods --namespace gitlab-managed-apps
+# ============
+# Exmple Output
+# NAME                                           READY   STATUS    RESTARTS   AGE
+# gitlab-runner-gitlab-runner-5794d87676-5rlfr   1/1     Running   0          43m
+# ============
+
+# View the logs for the specific pod
+kubectl logs gitlab-runner-gitlab-runner-5794d87676-5rlfr --namespace gitlab-managed-apps
+```
+
+Helpful Helm and Kubectl commands
+
+```bash
+# Get the helm install status
+helm status gitlab-runner --namespace gitlab-managed-apps
+
+# Get the service accounts that were created
+kubectl get serviceaccounts --namespace gitlab-managed-apps
+
+# If the pods have errors we can helm uninstill, edit values.yaml and then helm install again
+helm uninstall gitlab-runner --namespace gitlab-managed-apps
+```
+
+To fix the `PANIC: mkdir /nonexistent: permission denied` after the `helm install`
+
+- This GitLab issue fixed it. [Document how to use the ubuntu image with the helm chart](https://gitlab.com/gitlab-org/charts/gitlab-runner/-/issues/97)
+
+- Essentially there are 2 steps
+
+  1. Download the gitlab-runner alpine image
+
+  2. Change the `securityContext` in the values.yaml file
+
+     ```yaml
+     securityContext:
+       fsGroup: 999
+       runAsUser: 999
+     ```
+
