@@ -180,3 +180,72 @@ To fix the `PANIC: mkdir /nonexistent: permission denied` after the `helm instal
        runAsUser: 999
      ```
 
+<u>**Granting permissions to run the commands on the cluster to an IAM role**</u>
+
+Useful link: [How do I resolve an unauthorized server error when I connect to the Amazon EKS API server?](https://aws.amazon.com/premiumsupport/knowledge-center/eks-api-server-unauthorized-error/)
+
+After updating the AWS credentials to the account that created the cluster, run the following command (replace `<eks_cluster_name>`)
+
+```bash
+aws eks update-kubeconfig --name <eks_cluster_name>
+```
+
+This brings up the following default file
+
+```bash
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: v1
+data:
+  mapRoles: |
+    - groups:
+      - system:bootstrappers
+      - system:nodes
+      rolearn: arn:aws:iam::123456789123:role/<role_name>
+      username: system:node:{{EC2PrivateDNSName}}
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2020-10-21T09:08:51Z"
+  name: aws-auth
+  namespace: kube-system
+  resourceVersion: "7459"
+  selfLink: /api/v1/namespaces/kube-system/configmaps/aws-auth
+  uid: 
+```
+
+Then if we want to add a role, for example `arn:aws:iam::123456789123:role/<role_name2>`
+
+```bash
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: v1
+data:
+  mapRoles: |
+    - groups:
+      - system:bootstrappers
+      - system:nodes
+      rolearn: arn:aws:iam::123456789123:role/<role_name1>
+      username: system:node:{{EC2PrivateDNSName}}
+    - rolearn: arn:aws:iam::123456789123:role/<role_name2>
+      username: testrole
+      groups:
+        - system:masters
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2020-10-21T09:08:51Z"
+  name: aws-auth
+  namespace: kube-system
+  resourceVersion: "228046"
+  selfLink: /api/v1/namespaces/kube-system/configmaps/aws-auth
+  uid: 
+```
+
+Verify that the update is correct
+
+```bash
+kubectl describe configmap -n kube-system aws-auth
+```
