@@ -80,6 +80,15 @@
 *
 * Useful helper function to find the file systems used by the different volumes: `df -T`
 *
+* <b>Detail 2: Change git_data_dirs path to the new volume</b>
+*
+* 1. Copy the files over to the new volume: `cp -r /var/opt/gitlab/git-data /gitlab/git-data`
+* 2. Change directory to the new volume: `cd /gitlab`
+* 3. Change permissions of the folder and sub-folders: `chown -R git:root git-data`
+* 4. Change directory to the rb file: `cd /etc/gitlab`
+* 5. Modify `gitla.rb`. Change the `git_data_dirs` path to `/gitlab/git-data` for the appropriate gitaly instance
+* 6. Reconfigure. `sudo gitlab-ctl reconfigure`
+*
 */
 
 data "aws_ami" "this" {
