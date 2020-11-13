@@ -74,7 +74,7 @@
 * echo "UUID=333a116f-7e12-48b5-bf6a-1701cb5c8433  /gitlab  xfs  defaults,nofail  0  2" >> /etc/fstab
 *
 * # 9. Verify (should have no errors)
-* sudo umount /data
+* sudo umount /gitlab
 * sudo mount -a
 * ```
 *
