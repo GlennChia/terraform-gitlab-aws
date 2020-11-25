@@ -188,6 +188,7 @@ After updating the AWS credentials to the account that created the cluster, run 
 
 ```bash
 aws eks update-kubeconfig --name <eks_cluster_name>
+kubectl edit configmap aws-auth -n kube-system
 ```
 
 This brings up the following default file
