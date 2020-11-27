@@ -1,0 +1,132 @@
+description: |-
+  SSM document that installs GitLab on RHEL8
+
+  ---
+  # RHEL8 SSM Document
+  RHEL8 doesn't come with an SSM agent installed or cfn-signal command. This SSM document will perform the relevant installations.
+  ## SSM agent
+  SSM agent only comes out of the box for certain instances like Amazon Linux 2 and Ubuntu 16.04. The list can be found at the AWS [ssm agent guide](https://docs.aws.amazon.com/systems-manager/latest/userguide/ssm-agent.html)
+
+  To install the agent for RHEL8, follow the instructions at [Manually install SSM Agent on Red Hat Enterprise Linux instances](https://docs.aws.amazon.com/systems-manager/latest/userguide/agent-install-rhel.html)
+
+  ## GitLab Installation
+  Instructions to [Manually download and install a GitLab package](https://docs.gitlab.com/omnibus/manual_install.html)
+  Link to rpm packages for GitLab EE 13.2.6: [gitlab-ee-13.2.6-ee.0.el8.x86_64.rpm](https://packages.gitlab.com/gitlab/gitlab-ee/packages/el/8/gitlab-ee-13.2.6-ee.0.el8.x86_64.rpm)
+  Example install for gitlab-ee-13.2.6 fir el8
+  ```bash
+  dnf install wget -y
+  wget --content-disposition https://packages.gitlab.com/gitlab/gitlab-ee/packages/el/8/gitlab-ee-13.2.6-ee.0.el8.x86_64.rpm/download.rpm
+  rpm -Uvh gitlab-ee-13.2.6-ee.0.el8.x86_64.rpm
+  ```
+  Alternative installation steps:
+  ```bash
+  curl -s https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash
+  sudo yum install gitlab-ee-13.2.6-ee.0.el8.x86_64 -y
+  ```
+schemaVersion: '0.3'
+outputs:
+  - createImage.ImageId
+parameters:
+  ImageId:
+    type: String
+    default: ami-0f86a70488991335e
+    allowedPattern: 'ami-[a-zA-Z0-9]+$'
+    description: RHEL8 source AMI ID
+  InstanceType:
+    type: String
+    default: t2.micro
+    allowedValues:
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+    description: Restricted set of instance types to deploy
+  SubnetId:
+    type: String
+    allowedPattern: 'subnet-[a-zA-Z0-9]+$'
+    description: Subnet to launch the instances in
+    default: subnet-06de557240e1c7d7e
+  IamInstanceProfileArn:
+    type: String
+    description: IAM instance profile to attach. Minimum policy needed is AmazonSSMManagedInstanceCore
+    default: 'arn:aws:iam::{{ global:ACCOUNT_ID }}:instance-profile/ec2-ssm-core'
+  InstallSSMAgentUserData:
+    type: String
+    description: User data script to install SSM agent
+    default: <InstallSSMAgentUserData>
+mainSteps:
+  - name: launchInstances
+    action: aws:runInstances
+    maxAttempts: 1
+    onFailure: Abort
+    inputs:
+      ImageId: '{{ ImageId }}'
+      InstanceType: '{{ InstanceType }}'
+      SubnetId: '{{ SubnetId }}'
+      IamInstanceProfileArn: '{{ IamInstanceProfileArn }}'
+      MinInstanceCount: 1
+      MaxInstanceCount: 1
+      UserData: '{{ InstallSSMAgentUserData }}'
+      TagSpecifications:
+        - ResourceType: instance
+          Tags:
+          - Key: Name
+            Value: gitlab-instance
+          - Key: Environment
+            Value: Dev
+    description: Launches the instance and installs the SSM agent
+    nextStep: installGitLab
+  - name: installGitLab
+    action: aws:runCommand
+    maxAttempts: 1
+    onFailure: Abort
+    inputs:
+      DocumentName: AWS-RunShellScript
+      InstanceIds:
+        - '{{ launchInstances.InstanceIds }}'
+      CloudWatchOutputConfig:
+        CloudWatchOutputEnabled: true
+      Parameters:
+        commands:
+          - dnf update -y
+          - dnf install wget -y
+          - wget --content-disposition https://packages.gitlab.com/gitlab/gitlab-ee/packages/el/8/gitlab-ee-13.2.6-ee.0.el8.x86_64.rpm/download.rpm
+          - dnf install policycoreutils-python-utils -y
+          - rpm -Uvh gitlab-ee-13.2.6-ee.0.el8.x86_64.rpm
+    description: Installs GitLab 13.2.6
+    nextStep: stopInstances
+  - name: stopInstances
+    action: aws:changeInstanceState
+    maxAttempts: 1
+    onFailure: Abort
+    inputs:
+      InstanceIds:
+        - '{{ launchInstances.InstanceIds }}'
+      DesiredState: stopped
+    description: Stop the instance before making an image
+    nextStep: createImage
+  - name: createImage
+    action: aws:createImage
+    maxAttempts: 1
+    onFailure: Abort
+    inputs:
+      InstanceId: '{{ launchInstances.InstanceIds }}'
+      ImageName: GitLab AMI Created on {{global:DATE_TIME}}
+      NoReboot: true
+      ImageDescription: AMI created with ssm-agent and gitlab installed
+    outputs:
+      - Name: GitLab base AMI
+        Selector: "$.ImageId"
+        Type: String
+    description: Create the image after the customizations
+    nextStep: terminateInstances
+  - name: terminateInstances
+    action: aws:changeInstanceState
+    maxAttempts: 1
+    onFailure: Abort
+    inputs:
+      InstanceIds:
+        - '{{ launchInstances.InstanceIds }}'
+      DesiredState: terminated
+    description: Terminates the instance after making an image
+    isEnd: true

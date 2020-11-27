@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Deploys IAM instance profile for CloudWatch logging and ssm agent
+
+Parameters:
+  IAMName:
+    Type: String
+    Description: Iam role and instance profile name
+    Default: ec2-ssm-core
+
+Resources:
+  EC2SSMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement: 
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      RoleName: !Ref IAMName
+      Policies:
+        # https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-rc-setting-up-cwlogs.html
+        - PolicyName: cloudwatch-logs-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:::log-group:/aws/ssm/*
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+
+  EC2SSMInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: !Ref IAMName
+      Roles:
+        - !Ref EC2SSMRole
+
+Outputs:
+  EC2SSMRoleName:
+    Description: The name of the instance role
+    Value: !Ref EC2SSMRole
+  
+  EC2SSMRoleArn:
+    Description: The arn of the instance role
+    Value: !GetAtt EC2SSMRole.Arn
+
+  EC2SSMInstanceProfileName:
+    Description: The name of the instance profile
+    Value: !Ref EC2SSMInstanceProfile
+  
+  EC2SSMInstanceProfileArn:
+    Description: The arn of the instance profile
+    Value: !GetAtt EC2SSMInstanceProfile.Arn

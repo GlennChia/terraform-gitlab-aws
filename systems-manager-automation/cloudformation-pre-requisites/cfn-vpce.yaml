@@ -1,0 +1,78 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Deploys VPC endpoints that are needed for ssm automation
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: vpc id to deploy the resources to
+    
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: The ID of one or more subnets in which to create an endpoint network interface
+  
+  AllowlistIp:
+    Type: String
+    Description: >-
+      The IP address range that can be used to access the VPCE
+    MinLength: '9'
+    MaxLength: '18'
+    Default: 10.0.0.0/8
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+
+Resources:
+  GeneralVpcEndpointSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VpcId
+      GroupName: VPCE-security-group
+      GroupDescription: Allows ingress from allowlist IPs
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref AllowlistIp
+      Tags:
+        - Key: Name
+          Value: VPCE-security-group
+
+  ssmVpcEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      SecurityGroupIds: 
+        - !Ref GeneralVpcEndpointSecurityGroup
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.ssm
+      SubnetIds: !Ref SubnetIds
+      VpcEndpointType: Interface
+      VpcId: !Ref VpcId 
+
+  ssmMessagesVpcEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      SecurityGroupIds: 
+        - !Ref GeneralVpcEndpointSecurityGroup
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.ssmmessages
+      SubnetIds: !Ref SubnetIds
+      VpcEndpointType: Interface
+      VpcId: !Ref VpcId
+  
+  ec2MessagesVpcEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      SecurityGroupIds: 
+        - !Ref GeneralVpcEndpointSecurityGroup
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.ec2messages
+      SubnetIds: !Ref SubnetIds
+      VpcEndpointType: Interface
+      VpcId: !Ref VpcId
+
+  ec2VpcEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      SecurityGroupIds: 
+        - !Ref GeneralVpcEndpointSecurityGroup
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.ec2
+      SubnetIds: !Ref SubnetIds
+      VpcEndpointType: Interface
+      VpcId: !Ref VpcId

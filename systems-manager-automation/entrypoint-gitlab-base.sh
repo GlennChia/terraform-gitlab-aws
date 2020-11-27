@@ -1,0 +1,1 @@
+sed -i "s/<InstallSSMAgentUserData>/`base64 -w0 ./user_data/ssm_agent_install.sh`/g" ./systems-manager-documents/gitlab/gitlab-base.yaml
