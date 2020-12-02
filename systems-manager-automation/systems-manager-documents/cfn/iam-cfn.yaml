@@ -1,0 +1,107 @@
+description: |-
+  Creates a CloudFormation Stack, extracts its outputs and then Deletes it
+
+  ---
+  # Use cases
+  Launching temporary resources like an IAM instance profile that is referenced only once retrieve something from S3 or ECR and then once the action has been performed, the instance profile is no longer needed
+
+  # Useful Links
+  * [Data structures for SSM outputs](https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-doc-syntax.html)
+  * [References for aws:createStack and Outputs](https://github.com/aws-samples/aws-systems-manager-cloudformation-samples/tree/main/systems-manager-samples)
+  * [AWS API reference for describe-stacks](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudformation/describe-stacks.html) 
+
+schemaVersion: '0.3'
+parameters:
+  IamName:
+    type: String
+    description: IAM instance profile and IAM role name
+    default: ec2-ssm-iam
+outputs:
+  - GetCloudFormationOutputs.EC2SSMInstanceProfileArn
+mainSteps:
+  - name: CreateStack
+    action: aws:createStack
+    maxAttempts: 1
+    onFailure: Abort
+    inputs:
+      StackName: "iam-instance-profile-{{automation:EXECUTION_ID}}"
+      Capabilities:
+      - CAPABILITY_NAMED_IAM
+      TemplateBody: |
+        Description: Deploys IAM instance profile for CloudWatch logging and ssm agent
+        Parameters:
+          IAMName:
+            Type: String
+            Description: Iam role and instance profile name
+            Default: '{{ IamName }}'
+        Resources:
+          EC2SSMRole:
+            Type: AWS::IAM::Role
+            Properties:
+              AssumeRolePolicyDocument:
+                Version: 2012-10-17
+                Statement: 
+                  - Effect: Allow
+                    Principal:
+                      Service: ec2.amazonaws.com
+                    Action: sts:AssumeRole
+              RoleName: !Ref IAMName
+              Policies:
+                - PolicyName: cloudwatch-logs-policy
+                  PolicyDocument:
+                    Version: 2012-10-17
+                    Statement:
+                      - Effect: Allow
+                        Action:
+                          - logs:CreateLogGroup
+                          - logs:CreateLogStream
+                          - logs:DescribeLogGroups
+                          - logs:DescribeLogStreams
+                          - logs:PutLogEvents
+                        Resource: arn:aws:logs:::log-group:/aws/ssm/*
+              ManagedPolicyArns:
+                - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+                - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+          EC2SSMInstanceProfile:
+            Type: AWS::IAM::InstanceProfile
+            Properties:
+              InstanceProfileName: !Ref IAMName
+              Roles:
+                - !Ref EC2SSMRole
+        Outputs:
+          EC2SSMRoleArn:
+            Description: The arn of the instance role
+            Value: !GetAtt EC2SSMRole.Arn
+          EC2SSMInstanceProfileArn:
+            Description: The arn of the instance profile
+            Value: !GetAtt EC2SSMInstanceProfile.Arn          
+    description: Launches a stack that creates an IAM instance profile
+    nextStep: GetCloudFormationOutputs
+  - name: GetCloudFormationOutputs
+    action: aws:executeAwsApi
+    inputs:
+      Service: CloudFormation
+      Api: DescribeStacks
+      StackName: "iam-instance-profile-{{automation:EXECUTION_ID}}"
+    outputs:
+      - Name: CfnOutputKeys
+        Selector: $.Stacks..Outputs..OutputKey
+        Type: StringList
+      - Name: EC2SSMRoleOutput
+        Selector: $.Stacks..Outputs[0]
+        Type: MapList
+      - Name: EC2SSMInstanceProfileOutput
+        Selector: $.Stacks..Outputs[1]
+        Type: MapList
+      - Name: EC2SSMInstanceProfileArn
+        Selector: $.Stacks..Outputs[1].OutputValue
+        Type: StringList
+    nextStep: DeleteStack
+  - name: DeleteStack
+    action: aws:deleteStack
+    maxAttempts: 1
+    onFailure: Abort
+    inputs:
+      StackName: "iam-instance-profile-{{automation:EXECUTION_ID}}"
+    description: Deletes the stack that was created previously
+    isEnd: true
