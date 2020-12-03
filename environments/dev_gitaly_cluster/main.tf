@@ -18,6 +18,12 @@ provider "aws" {
   region  = var.region
 }
 
+module "key_pairs" {
+  source = "../../modules/key_pairs"
+
+  key_pairs = [var.gitlab_key_name, var.gitaly_key_name, var.praefect_key_name, var.bastion_key_name]
+}
+
 module "network" {
   source = "../../modules/network"
 

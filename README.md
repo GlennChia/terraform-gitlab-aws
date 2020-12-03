@@ -23,6 +23,25 @@ Install terraform-docs
   choco install terraform-docs
   ```
 
+## 1.2 MacOS
+
+Terraform Guide
+
+  - Install [Terraform](https://www.terraform.io/downloads.html)
+
+### Homebrew and Tfenv
+
+  - Install [Homebrew](https://brew.sh/)
+  - Install [TFENV](https://github.com/tfutils/tfenv)
+
+Example:
+
+```bash
+brew install tfenv
+tfenv install 0.12.29
+tfenv use 0.12.29
+terraform -v
+```
 
 # 2. Instructions
 
