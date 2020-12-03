@@ -21,10 +21,7 @@ provider "aws" {
 module "key_pairs" {
   source = "../../modules/key_pairs"
 
-  gitlab_key_name    = var.gitlab_key_name
-  gitaly_key_name    = var.gitaly_key_name
-  praefect_key_name  = var.praefect_key_name
-  bastion_key_name   = var.bastion_key_name
+  key_pairs = [var.gitlab_key_name, var.gitaly_key_name, var.praefect_key_name, var.bastion_key_name]
 }
 
 module "network" {
