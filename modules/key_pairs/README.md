@@ -12,5 +12,5 @@ Creates Key Pairs on AWS
 
 | Name | Description |
 |------|-------------|
-| n/a  |             |
-
+| private_keys  | List of all private keys |
+| public_keys  | List of all public keys |
